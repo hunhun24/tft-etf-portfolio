@@ -1,6 +1,8 @@
 """
 backtest.py — 롤링 백테스트
-실행: python src/backtest.py [--ckpt PATH] [--start YYYY-MM-DD]
+실행: 
+python geonho/src_tft_port/backtest.py \
+  --ckpt geonho/src_tft_port/outputs/checkpoints/tft-no_end_macro_sentiment-epoch=06-val_loss=0.0125.ckpt
 
   매 주 (월요일) 포트폴리오를 리밸런싱하고,
   5일 후 실제 target_5d 기준 수익률을 기록.

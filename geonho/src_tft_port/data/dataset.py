@@ -98,9 +98,8 @@ def make_datasets(
             transformation=None,   # log return은 추가 변환 불필요
         ),
 
-        # end, AUM_log: ticker별 정규화 (종목 간 절대값 차이 제거)
+        # AUM_log: ticker별 정규화 (종목 간 절대값 차이 제거)
         scalers={
-            "end": GroupNormalizer(groups=[GROUP_COL], transformation=None),
             "AUM_log": GroupNormalizer(groups=[GROUP_COL], transformation=None),
         },
 

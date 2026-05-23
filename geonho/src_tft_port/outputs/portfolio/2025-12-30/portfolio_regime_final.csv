@@ -1,0 +1,2 @@
+ticker,name,sector,asset_class,sub_asset,sector_type,signal_return,signal_sharpe,weight,pred_date,selected_mode,regime,regime_score
+182480,TIGER 미국MSCI리츠(합성H),defensive,위험자산,해외주식_섹터,defensive,0.005005017,0.107000954,1.0,2025-12-30,aggressive,risk_on,4

@@ -84,17 +84,17 @@ TIME_VARYING_KNOWN_REALS        = []
 TIME_VARYING_KNOWN_CATEGORICALS = []
 
 # TimeSeriesDataSet time-varying unknown reals (전처리 완료 기준 컬럼명)
+
 TIME_VARYING_UNKNOWN_REALS = [
-    "end",
     "AUM_log",
+    "usd_krw",
+    "vix_close",
     "domestic_mean",
     "domestic_std",
     "domestic_count_log",
     "global_mean",
     "global_std",
     "global_count_log",
-    "usd_krw",
-    "vix_close",
 ]
 
 
@@ -151,6 +151,9 @@ AGGRESSIVE = dict(
     rebalance_freq     = "weekly",
 )
 
+# 동일 종목 중복 ticker (A 접두사 없는 버전) — 포트폴리오 후보에서 제외
+DUPLICATE_TICKERS = {"157450"}
+
 # DB GAPS 자산군 매핑 — ticker 단위 (정확)
 # (자산구분, 세부자산명, 세부자산별 상한)
 TICKER_ASSET_MAP = {
@@ -188,7 +191,7 @@ TICKER_ASSET_MAP = {
 
     # rate_cash
     "423160":  ("안전자산", "금리연계형_초단기채권", 0.50),  # KODEX KOFR금리액티브
-    "157450":  ("안전자산", "금리연계형_초단기채권", 0.50),  # TIGER 단기통안채
+    #"157450":  ("안전자산", "금리연계형_초단기채권", 0.50),  # TIGER 단기통안채
     "459580":  ("안전자산", "금리연계형_초단기채권", 0.50),  # KODEX CD금리액티브
 
     # real_assets
@@ -199,8 +202,9 @@ TICKER_ASSET_MAP = {
 
     # sovereign_kr
     "A148070": ("안전자산", "국내채권_종합",         0.50),  # KIWOOM 국고채10년
-    "A157450": ("안전자산", "금리연계형_초단기채권", 0.50),  # TIGER 단기통안채
+    "A157450": ("안전자산", "국내채권_종합", 0.50),  # TIGER 단기통안채
     "A439870": ("안전자산", "국내채권_종합",         0.50),  # KODEX 국고채30년액티브
+    "157450":  ("안전자산", "국내채권_종합", 0.50),  # TIGER 단기통안채
 
     # sovereign_us
     "A453850": ("안전자산", "해외채권_종합",         0.50),  # ACE 미국30년국채

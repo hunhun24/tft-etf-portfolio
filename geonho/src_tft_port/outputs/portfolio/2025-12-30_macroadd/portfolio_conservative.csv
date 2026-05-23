@@ -1,0 +1,9 @@
+ticker,name,sector,asset_class,sub_asset,sector_type,signal_return,signal_sharpe,weight
+459580,KODEX CD금리액티브(합성),rate_cash,안전자산,금리연계형_초단기채권,defensive,0.0009511398,0.61299413,0.13001142
+423160,KODEX KOFR금리액티브(합성),rate_cash,안전자산,금리연계형_초단기채권,defensive,0.0008166094,0.49327198,0.13001142
+A157450,TIGER 단기통안채,sovereign_kr,안전자산,금리연계형_초단기채권,defensive,0.00057670457,0.38000423,0.124802046
+157450,TIGER 단기통안채,rate_cash,안전자산,금리연계형_초단기채권,defensive,0.0005447982,0.29180467,0.11517521
+A329750,TIGER 미국달러단기채권액티브,sovereign_us,안전자산,해외채권_종합,defensive,0.0016719231,0.095975004,0.1314514
+69500,KODEX 200,domestic_core,위험자산,국내주식_지수,growth,0.0017479365,0.05508086,0.12517701
+A305080,TIGER 미국채10년선물,sovereign_us,안전자산,해외채권_종합,defensive,0.00021786315,0.01179238,0.12168842
+229200,KODEX 코스닥150,domestic_core,위험자산,국내주식_지수,growth,0.00063076284,0.015118948,0.12168311

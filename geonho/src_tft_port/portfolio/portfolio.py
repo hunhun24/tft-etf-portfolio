@@ -26,6 +26,7 @@ from config import (
     TICKER_ASSET_MAP, MAX_SINGLE_TICKER, MAX_RISK_ASSET,
     SECTOR_COL, GROUP_COL,
     PORTFOLIO_RESULT_DIR,
+    DUPLICATE_TICKERS,
 )
 
 StrategyType = Literal["conservative", "aggressive"]
@@ -37,6 +38,8 @@ StrategyType = Literal["conservative", "aggressive"]
 
 def build_signal(pred_df: pd.DataFrame) -> pd.DataFrame:
     df = pred_df.copy()
+    df[GROUP_COL] = df[GROUP_COL].astype(str)
+    df = df[~df[GROUP_COL].isin(DUPLICATE_TICKERS)].copy()
     df["signal_return"]   = df["pred_q50"]
     df["signal_upside"]   = df["pred_q90"] - df["pred_q50"]
     df["signal_downside"] = df["pred_q50"] - df["pred_q10"]

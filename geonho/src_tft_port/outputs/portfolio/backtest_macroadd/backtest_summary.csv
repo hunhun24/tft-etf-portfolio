@@ -1,4 +1,4 @@
 strategy,cum_return_%,ann_return_%,ann_vol_%,sharpe,MDD_%,hit_rate_%,n_periods
 equal_weight,26.39,26.39,11.15,2.367,-10.32,65.4,52
-conservative,23.21,23.21,9.93,2.338,-7.58,67.3,52
-aggressive,36.25,36.25,21.63,1.676,-15.42,57.7,52
+conservative,16.39,16.39,9.28,1.766,-7.01,59.6,52
+aggressive,29.13,29.13,22.35,1.303,-17.8,55.8,52

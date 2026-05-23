@@ -1,0 +1,2 @@
+regime,selected_mode,regime_score,avg_pred_return,top_pred_return,downside_risk,forecast_uncertainty,pred_dispersion,fallback_reason,condition_avg_return_positive,condition_top_return_strong,condition_downside_acceptable,condition_uncertainty_low
+risk_on,aggressive,4,0.002103554317727685,0.004539848305284977,-0.026215624064207077,0.05206926539540291,0.0017270789248868823,,True,True,True,True

@@ -1,7 +1,7 @@
 """
-predict.py — TFT 추론 + 포트폴리오 구성
-실행: 
-python geonho/src_tft_port/predict.py \
+predict_regime.py — TFT 추론 + regime-switch 포트폴리오 구성
+실행:
+python geonho/src_tft_port/predict_regime.py \
     --ckpt geonho/src_tft_port/outputs/checkpoints/tft-no_end_macro_sentiment-epoch=06-val_loss=0.0125.ckpt \
     --date 2025-12-30
 
@@ -25,9 +25,9 @@ from config import (
     SECTOR_COL, BATCH_SIZE, NUM_WORKERS,
 )
 from data.dataset import make_datasets
-from portfolio.portfolio import (
-    build_signal, compute_weights,
-    portfolio_summary, save_results,
+from portfolio.portfolio_regime import (
+    compute_regime_portfolio,
+    save_regime_results,
 )
 
 QUANTILES = [0.1, 0.5, 0.9]
@@ -169,21 +169,20 @@ def run_inference(
 # ─────────────────────────────────────────────────────────────
 
 def build_portfolio(pred_df: pd.DataFrame, pred_date: str) -> dict:
-    """예측값으로 안정형 / 수익추구형 포트폴리오 구성."""
-    signal_df = build_signal(pred_df)
+    """예측값으로 regime-switch 최종 포트폴리오 구성."""
+    result = compute_regime_portfolio(
+        pred_df=pred_df,
+        pred_date=pred_date,
+        verbose=True,
+    )
 
-    cons_w = compute_weights(signal_df, strategy="conservative")
-    agg_w  = compute_weights(signal_df, strategy="aggressive")
+    save_regime_results(
+        final_df=result["final"],
+        regime_info=result["regime_info"],
+        pred_date=pred_date,
+    )
 
-    cons_summary = portfolio_summary(cons_w, "conservative")
-    agg_summary  = portfolio_summary(agg_w,  "aggressive")
-
-    save_results(cons_w, agg_w, pred_date)
-
-    return {
-        "conservative": {"weights": cons_w, "summary": cons_summary},
-        "aggressive":   {"weights": agg_w,  "summary": agg_summary},
-    }
+    return result
 
 
 # ─────────────────────────────────────────────────────────────
@@ -207,11 +206,12 @@ def main():
     portfolio = build_portfolio(pred_df, pred_date=args.date or pred_df["date"].iloc[0])
 
     print("\n" + "=" * 60)
-    print("포트폴리오 구성 완료")
+    print("Regime-switch 포트폴리오 구성 완료")
     print(f"  outputs/portfolio/{args.date or pred_df['date'].iloc[0]}/")
-    print("  ├── portfolio_conservative.csv")
-    print("  ├── portfolio_aggressive.csv")
-    print("  └── portfolio_comparison.csv")
+    print("  ├── portfolio_regime_final.csv")
+    print("  ├── regime_log.csv")
+    print("  ├── portfolio_conservative_candidate.csv")
+    print("  └── portfolio_aggressive_candidate.csv")
     return portfolio
 
 
