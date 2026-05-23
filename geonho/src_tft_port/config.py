@@ -114,3 +114,96 @@ HIDDEN_CONTINUOUS_SIZE = 32
 MAX_EPOCHS        = 50
 PATIENCE          = 5
 gradient_clip_val = 0.5
+
+# ── 포트폴리오 설정 ───────────────────────────────────────────────────────────
+import pathlib as _pathlib
+
+DATE_COL             = "date"
+NUM_WORKERS          = 0
+TEST_START_DATE      = "2025-01-02"
+PORTFOLIO_RESULT_DIR = _pathlib.Path(_OUT_DIR) / "portfolio"
+
+# DB GAPS 전체 제약
+MAX_SINGLE_TICKER = 0.20   # 개별 종목 상한 20%
+MAX_RISK_ASSET    = 0.70   # 위험자산 합산 상한 70%
+
+# 섹터 분류 (포트폴리오 점수 계산용)
+DEFENSIVE_SECTORS   = {"defensive", "rate_cash", "sovereign_kr", "sovereign_us"}
+GROWTH_SECTORS      = {"global_macro", "domestic_core", "Semiconductor",
+                       "SecondaryBattery", "BigTech", "IndiaEquity", "ChinaEquity"}
+ALTERNATIVE_SECTORS = {"real_assets"}
+
+# 포트폴리오 전략 파라미터
+CONSERVATIVE = dict(
+    max_single_weight  = 0.15,
+    defensive_floor    = 0.50,
+    top_n              = 10,
+    return_threshold   = 0.0,
+    risk_free_weight   = 0.10,
+    rebalance_freq     = "weekly",
+)
+AGGRESSIVE = dict(
+    max_single_weight  = 0.20,
+    defensive_floor    = 0.10,
+    top_n              = 8,
+    return_threshold   = 0.005,
+    risk_free_weight   = 0.0,
+    rebalance_freq     = "weekly",
+)
+
+# DB GAPS 자산군 매핑 — ticker 단위 (정확)
+# (자산구분, 세부자산명, 세부자산별 상한)
+TICKER_ASSET_MAP = {
+    # BigTech
+    "A381170": ("위험자산", "해외주식_섹터",         0.10),
+
+    # ChinaEquity
+    "A192090": ("위험자산", "해외주식_지수",         0.30),
+
+    # IndiaEquity
+    "A453870": ("위험자산", "해외주식_지수",         0.30),
+
+    # SecondaryBattery
+    "A305720": ("위험자산", "국내주식_섹터",         0.15),
+
+    # Semiconductor
+    "A381180": ("위험자산", "해외주식_섹터",         0.10),  # 미국 반도체
+    "A091160": ("위험자산", "국내주식_섹터",         0.15),  # 국내 반도체
+
+    # defensive (섹터 내 혼재 → ticker별 분리)
+    "161510":  ("위험자산", "국내주식_섹터",         0.15),  # PLUS 고배당주
+    "174350":  ("위험자산", "국내주식_섹터",         0.15),  # TIGER 로우볼
+    "182480":  ("위험자산", "해외주식_섹터",         0.10),  # TIGER 미국MSCI리츠
+    "402970":  ("위험자산", "해외주식_지수",         0.30),  # ACE 미국배당다우존스
+
+    # domestic_core
+    "229200":  ("위험자산", "국내주식_지수",         0.30),  # KODEX 코스닥150
+    "69500":   ("위험자산", "국내주식_지수",         0.30),  # KODEX 200
+
+    # global_macro
+    "133690":  ("위험자산", "해외주식_지수",         0.30),  # TIGER 미국나스닥100
+    "360750":  ("위험자산", "해외주식_지수",         0.30),  # TIGER 미국S&P500
+    "251350":  ("위험자산", "해외주식_지수",         0.30),  # KODEX 선진국MSCI
+    "241180":  ("위험자산", "해외주식_지수",         0.30),  # TIGER 일본니케이225
+
+    # rate_cash
+    "423160":  ("안전자산", "금리연계형_초단기채권", 0.50),  # KODEX KOFR금리액티브
+    "157450":  ("안전자산", "금리연계형_초단기채권", 0.50),  # TIGER 단기통안채
+    "459580":  ("안전자산", "금리연계형_초단기채권", 0.50),  # KODEX CD금리액티브
+
+    # real_assets
+    "A261220": ("위험자산", "FX및원자재",            0.20),  # KODEX WTI원유선물
+    "A261240": ("위험자산", "FX및원자재",            0.20),  # KODEX 미국달러선물
+    "A411060": ("위험자산", "FX및원자재",            0.20),  # ACE KRX금현물
+    "A144600": ("위험자산", "FX및원자재",            0.20),  # KODEX 은선물
+
+    # sovereign_kr
+    "A148070": ("안전자산", "국내채권_종합",         0.50),  # KIWOOM 국고채10년
+    "A157450": ("안전자산", "금리연계형_초단기채권", 0.50),  # TIGER 단기통안채
+    "A439870": ("안전자산", "국내채권_종합",         0.50),  # KODEX 국고채30년액티브
+
+    # sovereign_us
+    "A453850": ("안전자산", "해외채권_종합",         0.50),  # ACE 미국30년국채
+    "A305080": ("안전자산", "해외채권_종합",         0.50),  # TIGER 미국채10년선물
+    "A329750": ("안전자산", "해외채권_종합",         0.50),  # TIGER 미국달러단기채권
+}
