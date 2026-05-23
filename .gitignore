@@ -59,5 +59,4 @@ wandb/
 *.tmp
 *.swp
 
-geonho/src/outputs/
 lightning_logs/
