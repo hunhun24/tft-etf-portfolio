@@ -1,0 +1,2003 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>ETF Nowcasting — Dashboard</title>
+<meta name="viewport" content="width=1280">
+<style>
+/* ─────────────────────────────────────────────────────────────────
+   ETF Nowcasting — Design System
+   colors_and_type.css
+   Owns: type, color, spacing, radii, shadow, motion tokens
+   ───────────────────────────────────────────────────────────────── */
+
+/* Fonts — Google Fonts substitution (see README; flagged for user).
+   Self-hosting would replace this @import with @font-face from /fonts. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  /* ─────────── Brand ─────────── */
+  /* Sampled from the BITAmin "B" logo (burgundy → orange gradient). */
+  --brand-burgundy-900: #5C1717;
+  --brand-burgundy-800: #791C1C;
+  --brand-burgundy-700: #9A1F1F;   /* primary */
+  --brand-burgundy-600: #B53431;
+  --brand-orange-500:   #D85A2F;
+  --brand-orange-400:   #E07A3C;
+  --brand-amber-300:    #ECA050;
+  --brand-gradient:     linear-gradient(160deg, var(--brand-burgundy-700) 0%, var(--brand-orange-500) 75%, var(--brand-amber-300) 100%);
+
+  /* ─────────── Neutrals — dark surface (default for product UI) ─────────── */
+  --ink-1000: #06080A;   /* paper-deep */
+  --ink-950:  #0B0E12;
+  --ink-900:  #0F1216;   /* dashboard bg */
+  --ink-850:  #14181E;   /* card */
+  --ink-800:  #1A1F26;   /* card hover / row stripe */
+  --ink-700:  #232932;   /* divider strong */
+  --ink-600:  #2E3540;
+  --ink-500:  #3D4654;
+  --ink-400:  #545E6E;
+  --ink-300:  #7C8696;
+  --ink-200:  #A3ACBA;
+  --ink-100:  #C9CFD8;
+  --ink-50:   #E6E9EF;
+  --ink-25:   #F2F4F7;
+
+  /* ─────────── Neutrals — light surface (marketing / docs) ─────────── */
+  --paper-50:  #FBF9F5;
+  --paper-100: #F7F4EE;   /* page bg */
+  --paper-200: #F0EBE1;
+  --paper-300: #E4DDD0;
+
+  /* ─────────── Semantic foreground / background (dark default) ─────────── */
+  --bg-base:     var(--ink-900);
+  --bg-elev-1:   var(--ink-850);
+  --bg-elev-2:   var(--ink-800);
+  --bg-elev-3:   var(--ink-700);
+  --bg-inverse:  var(--paper-100);
+
+  --fg-strong:   #FFFFFF;
+  --fg-default:  var(--ink-50);
+  --fg-muted:    var(--ink-200);
+  --fg-subtle:   var(--ink-300);
+  --fg-disabled: var(--ink-400);
+  --fg-inverse:  var(--ink-900);
+
+  --border-hairline:  rgba(255, 255, 255, 0.08);
+  --border-default:   rgba(255, 255, 255, 0.14);
+  --border-strong:    rgba(255, 255, 255, 0.24);
+
+  /* ─────────── Market — Korean convention (red up, blue down) ─────────── */
+  --gain-700:   #A0211D;
+  --gain-600:   #C3292A;
+  --gain-500:   #D6342F;    /* up */
+  --gain-400:   #E45A55;
+  --gain-100:   rgba(214, 52, 47, 0.16);
+
+  --loss-700:   #14458F;
+  --loss-600:   #1B5BC7;
+  --loss-500:   #1F6FEB;    /* down */
+  --loss-400:   #4F8DF0;
+  --loss-100:   rgba(31, 111, 235, 0.16);
+
+  --flat-500:   #7C8696;
+  --flat-100:   rgba(124, 134, 150, 0.14);
+
+  /* ─────────── Semantic — status ─────────── */
+  --color-positive: var(--gain-500);
+  --color-negative: var(--loss-500);
+  --color-success:  #4FB069;       /* rule pass · system green */
+  --color-warn:     #E08A1E;
+  --color-info:     #4FA8E0;
+  --color-focus:    #56D2E0;
+
+  /* ─────────── Data palette — 6 equally-luminous stops for chart series ─────────── */
+  --data-1: #C2553F;   /* terracotta */
+  --data-2: #C99146;   /* ochre */
+  --data-3: #6E9460;   /* sage */
+  --data-4: #3F8A8C;   /* teal */
+  --data-5: #4A5D7E;   /* slate */
+  --data-6: #8A5D85;   /* plum */
+
+  /* ─────────── Sector palette (maps to codebase SECTOR_COL values) ─────────── */
+  --sector-semiconductor:    var(--data-1);   /* Semiconductor / 반도체 */
+  --sector-secondary-battery: var(--data-2);  /* SecondaryBattery / 2차전지 */
+  --sector-bigtech:          var(--data-6);   /* BigTech */
+  --sector-india:            var(--data-2);
+  --sector-china:            var(--gain-600);
+  --sector-domestic-core:    var(--data-3);
+  --sector-global-macro:     var(--data-4);
+  --sector-defensive:        var(--data-5);
+  --sector-real-assets:      var(--data-2);
+  --sector-rate-cash:        var(--ink-300);
+  --sector-sovereign-kr:     var(--data-5);
+  --sector-sovereign-us:     var(--data-4);
+
+  /* ─────────── Type families ─────────── */
+  --font-sans:    'Inter', 'IBM Plex Sans KR', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Inter', 'IBM Plex Sans KR', system-ui, sans-serif;
+  --font-kr:      'IBM Plex Sans KR', 'Inter', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* ─────────── Type scale (px) ─────────── */
+  --fs-10: 10px;
+  --fs-11: 11px;
+  --fs-12: 12px;
+  --fs-13: 13px;
+  --fs-14: 14px;
+  --fs-16: 16px;
+  --fs-18: 18px;
+  --fs-22: 22px;
+  --fs-28: 28px;
+  --fs-36: 36px;
+  --fs-48: 48px;
+  --fs-64: 64px;
+
+  /* ─────────── Line heights ─────────── */
+  --lh-tight:   1.1;
+  --lh-snug:    1.25;
+  --lh-normal:  1.45;
+  --lh-relaxed: 1.6;
+
+  /* ─────────── Spacing (4 px base) ─────────── */
+  --sp-1:  4px;
+  --sp-2:  8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-5:  20px;
+  --sp-6:  24px;
+  --sp-8:  32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+  --sp-20: 80px;
+  --sp-24: 96px;
+
+  /* ─────────── Radii ─────────── */
+  --radius-2:    2px;
+  --radius-4:    4px;
+  --radius-8:    8px;
+  --radius-12:   12px;
+  --radius-16:   16px;
+  --radius-pill: 999px;
+
+  /* ─────────── Shadow ─────────── */
+  --shadow-0: 0 0 0 1px var(--border-hairline);
+  --shadow-1: 0 1px 2px rgba(0,0,0,0.30), 0 1px 1px rgba(0,0,0,0.20);
+  --shadow-2: 0 8px 24px rgba(0,0,0,0.40), 0 2px 4px rgba(0,0,0,0.20);
+  --shadow-3: 0 24px 64px rgba(0,0,0,0.55), 0 8px 16px rgba(0,0,0,0.30);
+  --shadow-inset: inset 0 1px 0 rgba(0,0,0,0.25);
+
+  /* ─────────── Motion ─────────── */
+  --ease-out:   cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in:    cubic-bezier(0.4, 0.0, 1, 1);
+  --ease-spring: cubic-bezier(0.34, 1.2, 0.64, 1);
+
+  --dur-fast:   120ms;
+  --dur-base:   200ms;
+  --dur-slow:   320ms;
+  --dur-number: 600ms;
+
+  /* ─────────── Layout ─────────── */
+  --sidebar-w:     240px;
+  --topbar-h:      56px;
+  --regime-bar-h:  40px;
+  --container-max: 1280px;
+}
+
+/* ─────────── Light theme override (apply [data-theme="light"] on root) ─────────── */
+[data-theme="light"] {
+  --bg-base:    var(--paper-100);
+  --bg-elev-1:  var(--paper-50);
+  --bg-elev-2:  #FFFFFF;
+  --bg-elev-3:  #FFFFFF;
+  --bg-inverse: var(--ink-900);
+
+  --fg-strong:   var(--ink-1000);
+  --fg-default:  var(--ink-900);
+  --fg-muted:    var(--ink-500);
+  --fg-subtle:   var(--ink-400);
+  --fg-disabled: var(--ink-300);
+  --fg-inverse:  #FFFFFF;
+
+  --border-hairline: rgba(15, 18, 22, 0.08);
+  --border-default:  rgba(15, 18, 22, 0.14);
+  --border-strong:   rgba(15, 18, 22, 0.22);
+
+  --shadow-0: 0 0 0 1px var(--border-hairline);
+  --shadow-1: 0 1px 2px rgba(15,18,22,0.06), 0 1px 1px rgba(15,18,22,0.04);
+  --shadow-2: 0 8px 24px rgba(15,18,22,0.10), 0 2px 4px rgba(15,18,22,0.06);
+  --shadow-3: 0 24px 64px rgba(15,18,22,0.18), 0 8px 16px rgba(15,18,22,0.10);
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   Base + semantic class shortcuts
+   ───────────────────────────────────────────────────────────────── */
+
+html, body {
+  background: var(--bg-base);
+  color: var(--fg-default);
+  font-family: var(--font-sans);
+  font-size: var(--fs-14);
+  line-height: var(--lh-normal);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'cv11' 1, 'ss01' 1;
+}
+
+/* Display + headings */
+.t-display-xl,
+h1.display {
+  font-family: var(--font-display);
+  font-size: var(--fs-64);
+  line-height: var(--lh-tight);
+  letter-spacing: -0.025em;
+  font-weight: 700;
+  color: var(--fg-strong);
+}
+.t-display-lg {
+  font-size: var(--fs-48);
+  line-height: var(--lh-tight);
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  color: var(--fg-strong);
+}
+.t-display-md, h1 {
+  font-size: var(--fs-36);
+  line-height: var(--lh-snug);
+  letter-spacing: -0.018em;
+  font-weight: 700;
+  color: var(--fg-strong);
+}
+h2, .t-h2 {
+  font-size: var(--fs-28);
+  line-height: var(--lh-snug);
+  letter-spacing: -0.014em;
+  font-weight: 700;
+  color: var(--fg-strong);
+}
+h3, .t-h3 {
+  font-size: var(--fs-22);
+  line-height: var(--lh-snug);
+  letter-spacing: -0.01em;
+  font-weight: 600;
+  color: var(--fg-strong);
+}
+h4, .t-h4 {
+  font-size: var(--fs-18);
+  line-height: var(--lh-snug);
+  font-weight: 600;
+  color: var(--fg-strong);
+}
+.t-body, p {
+  font-size: var(--fs-14);
+  line-height: var(--lh-normal);
+  color: var(--fg-default);
+}
+.t-body-lg {
+  font-size: var(--fs-16);
+  line-height: var(--lh-relaxed);
+  color: var(--fg-default);
+}
+.t-body-sm {
+  font-size: var(--fs-13);
+  line-height: var(--lh-normal);
+  color: var(--fg-muted);
+}
+.t-caption {
+  font-size: var(--fs-12);
+  line-height: var(--lh-normal);
+  color: var(--fg-muted);
+}
+.t-micro {
+  font-size: var(--fs-10);
+  line-height: var(--lh-normal);
+  color: var(--fg-subtle);
+}
+
+/* Eyebrow / ALL-CAPS tracked label */
+.t-eyebrow {
+  font-family: var(--font-sans);
+  font-size: var(--fs-11);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+/* Numeric display — hero stat */
+.t-num-display {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: var(--fs-36);
+  letter-spacing: -0.02em;
+  font-feature-settings: 'tnum' 1, 'ss01' 1, 'cv11' 1;
+  color: var(--fg-strong);
+}
+.t-num-lg {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: var(--fs-22);
+  font-feature-settings: 'tnum' 1, 'ss01' 1;
+  letter-spacing: -0.01em;
+  color: var(--fg-strong);
+}
+
+/* Mono — tickers, table figures */
+.t-mono,
+.mono {
+  font-family: var(--font-mono);
+  font-feature-settings: 'tnum' 1, 'zero' 1;
+}
+.t-ticker {
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--fg-default);
+}
+
+/* Korean override class */
+.kr {
+  font-family: var(--font-kr);
+}
+
+/* Code blocks */
+code, pre {
+  font-family: var(--font-mono);
+  font-size: var(--fs-13);
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-4);
+  padding: 1px 6px;
+}
+
+/* Up / down semantic colors */
+.fg-up,    .gain { color: var(--color-positive); }
+.fg-down,  .loss { color: var(--color-negative); }
+.fg-flat        { color: var(--flat-500); }
+.bg-up   { background: var(--gain-100); color: var(--color-positive); }
+.bg-down { background: var(--loss-100); color: var(--color-negative); }
+.bg-flat { background: var(--flat-100); color: var(--flat-500); }
+
+/* Utility surfaces */
+.surface       { background: var(--bg-base); color: var(--fg-default); }
+.surface-card  { background: var(--bg-elev-1); border: 1px solid var(--border-hairline); border-radius: var(--radius-12); }
+.surface-deep  { background: var(--bg-elev-2); }
+
+/* Focus ring */
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-4);
+}
+
+/* ETF Nowcasting — dashboard chrome
+   Owns: Shell, Sidebar, Topbar, Card, Table, Buttons, Segmented, Search */
+
+html, body { margin: 0; padding: 0; min-width: 1280px; }
+body { font-family: var(--font-sans); }
+
+/* ── Shell ─────────────────────────────────────────────────────── */
+.etfn-shell {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  min-height: 100vh;
+  background: var(--bg-base);
+  color: var(--fg-default);
+}
+
+.etfn-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.etfn-content {
+  padding: 24px 32px 64px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Sidebar ───────────────────────────────────────────────────── */
+.etfn-sidebar {
+  border-right: 1px solid var(--border-hairline);
+  background: var(--bg-elev-1);
+  display: flex;
+  flex-direction: column;
+  padding: 18px 0 12px;
+  position: sticky; top: 0; height: 100vh;
+}
+.etfn-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 18px 22px;
+  border-bottom: 1px solid var(--border-hairline);
+  margin-bottom: 12px;
+}
+.etfn-nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px;
+  border: 0; border-radius: 6px;
+  background: transparent;
+  color: var(--fg-muted);
+  font-family: var(--font-sans); font-size: 13px; font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast);
+}
+.etfn-nav-item:hover { background: var(--bg-elev-2); color: var(--fg-default); }
+.etfn-nav-item.is-active {
+  background: color-mix(in oklab, var(--brand-burgundy-700) 18%, transparent);
+  color: var(--fg-strong);
+  position: relative;
+}
+.etfn-nav-item.is-active::before {
+  content: ''; position: absolute; left: -8px; top: 6px; bottom: 6px;
+  width: 2px; border-radius: 2px;
+  background: var(--brand-orange-500);
+}
+.etfn-rebal-card {
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border-hairline);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+/* ── Topbar ────────────────────────────────────────────────────── */
+.etfn-topbar {
+  height: var(--topbar-h);
+  border-bottom: 1px solid var(--border-hairline);
+  background: var(--bg-base);
+  display: flex; align-items: center;
+  padding: 0 24px;
+  gap: 12px;
+  position: sticky; top: 40px; z-index: 5;
+}
+.etfn-search {
+  display: flex; align-items: center; gap: 8px;
+  width: 360px; height: 32px;
+  background: var(--bg-elev-1);
+  border: 1px solid var(--border-hairline);
+  border-radius: 8px;
+  padding: 0 10px;
+  color: var(--fg-muted);
+}
+.etfn-search input {
+  flex: 1; background: transparent; border: 0; outline: 0;
+  color: var(--fg-default); font-size: 13px; font-family: var(--font-sans);
+}
+.etfn-search input::placeholder { color: var(--fg-subtle); }
+.etfn-search kbd {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--fg-subtle);
+  padding: 2px 5px; border-radius: 4px;
+  border: 1px solid var(--border-hairline);
+  background: var(--bg-elev-2);
+}
+
+/* ── Buttons ───────────────────────────────────────────────────── */
+.etfn-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 30px; padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: var(--bg-elev-1);
+  color: var(--fg-default);
+  font-family: var(--font-sans); font-size: 12px; font-weight: 500;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast);
+  white-space: nowrap;
+  position: relative;
+}
+.etfn-btn:hover { background: var(--bg-elev-2); }
+.etfn-btn--primary {
+  background: var(--brand-burgundy-700); color: #fff;
+}
+.etfn-btn--primary:hover { background: var(--brand-burgundy-600); }
+.etfn-btn--ghost {
+  background: transparent; color: var(--fg-muted);
+}
+.etfn-btn--ghost:hover { background: var(--bg-elev-2); color: var(--fg-default); }
+.etfn-bell-dot {
+  position: absolute; top: 4px; right: 4px;
+  width: 6px; height: 6px; border-radius: 999px;
+  background: var(--brand-orange-500);
+  box-shadow: 0 0 0 2px var(--bg-base);
+}
+
+/* ── Segmented control ────────────────────────────────────────── */
+.etfn-seg {
+  display: inline-flex; padding: 3px;
+  background: var(--bg-elev-1);
+  border: 1px solid var(--border-hairline);
+  border-radius: 8px;
+}
+.etfn-seg button {
+  height: 24px; padding: 0 12px;
+  border: 0; background: transparent;
+  color: var(--fg-muted); font-size: 12px; font-weight: 500;
+  border-radius: 6px; cursor: pointer;
+  transition: background var(--dur-fast), color var(--dur-fast);
+  font-family: var(--font-sans);
+}
+.etfn-seg button:hover { color: var(--fg-default); }
+.etfn-seg button.is-active {
+  background: var(--brand-burgundy-700); color: #fff;
+}
+.etfn-seg--sm button { height: 22px; padding: 0 10px; font-size: 11px; }
+
+/* ── Card ──────────────────────────────────────────────────────── */
+.etfn-card {
+  background: var(--bg-elev-1);
+  border: 1px solid var(--border-hairline);
+  border-radius: 12px;
+  box-shadow: var(--shadow-1);
+  min-width: 0;
+}
+.etfn-card-hd {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px;
+}
+.etfn-card-title {
+  font-size: 14px; font-weight: 600; color: var(--fg-strong);
+  letter-spacing: -0.005em;
+}
+.etfn-card-meta {
+  font-size: 12px; color: var(--fg-muted);
+  font-family: var(--font-mono);
+}
+
+/* ── Table ─────────────────────────────────────────────────────── */
+.etfn-table {
+  width: 100%; border-collapse: collapse; font-size: 12px;
+}
+.etfn-table th {
+  text-align: left; font-weight: 600;
+  font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--fg-muted);
+  padding: 8px 10px 8px;
+  border-bottom: 1px solid var(--border-hairline);
+  background: var(--bg-elev-1);
+  position: sticky; top: 0;
+  white-space: nowrap;
+}
+.etfn-table th.r, .etfn-table td.r { text-align: right; }
+.etfn-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-hairline);
+  vertical-align: middle;
+}
+.etfn-table tbody tr {
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.etfn-table tbody tr:hover td { background: var(--bg-elev-2); }
+.etfn-table tbody tr:last-child td { border-bottom: 0; }
+
+/* ── Hover row helper ──────────────────────────────────────────── */
+.etfn-row-hover { transition: background var(--dur-fast); }
+.etfn-row-hover:hover { background: var(--bg-elev-2); }
+
+/* ── First-paint number tick animation ─────────────────────────── */
+.etfn-content {
+  animation: etfn-fade-in 300ms var(--ease-out);
+}
+@keyframes etfn-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+</style>
+</head>
+<body data-screen-label="ETF Nowcasting Dashboard">
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+  <script>// ETF Nowcasting — REAL data · 2025-05-19 기준
+// 출처: src_tft_port_regime/outputs/portfolio/2025-05-19/
+//       src_tft_port_regime/outputs/portfolio/backtest_regime/backtest_returns.csv
+
+window.ETFN_DATA = (function () {
+  const SECTORS = {
+    Semiconductor:    { kr: '반도체',      glyph: '반',   color: 'var(--data-1)' },
+    SecondaryBattery: { kr: '2차전지',     glyph: '2차',  color: 'var(--data-2)' },
+    BigTech:          { kr: '빅테크',      glyph: 'Big',  color: 'var(--data-6)' },
+    ChinaEquity:      { kr: '중국주식',    glyph: '中',   color: 'var(--gain-600)' },
+    IndiaEquity:      { kr: '인도주식',    glyph: '印',   color: 'var(--data-2)' },
+    domestic_core:    { kr: '국내코어',    glyph: '국',   color: 'var(--data-3)' },
+    global_macro:     { kr: '글로벌매크로', glyph: 'G',   color: 'var(--data-4)' },
+    defensive:        { kr: '방어',        glyph: '방',   color: 'var(--data-5)' },
+    real_assets:      { kr: '실물자산',    glyph: '실',   color: 'var(--data-2)' },
+    rate_cash:        { kr: '단기금리',    glyph: '금',   color: 'var(--ink-300)' },
+    sovereign_kr:     { kr: '국고채',      glyph: '국채', color: 'var(--data-5)' },
+    sovereign_us:     { kr: '미국채',      glyph: '美채', color: 'var(--data-4)' },
+  };
+
+  const ETFS = [
+    { tk: 'A381170', name: 'TIGER 미국테크TOP10',    iss: 'TIGER',  sec: 'BigTech',          cls: '위험자산', sub: '해외주식_섹터' },
+    { tk: 'A192090', name: 'TIGER 차이나CSI300',      iss: 'TIGER',  sec: 'ChinaEquity',      cls: '위험자산', sub: '해외주식_지수' },
+    { tk: 'A453870', name: 'ACE 인도Nifty50',          iss: 'ACE',    sec: 'IndiaEquity',      cls: '위험자산', sub: '해외주식_지수' },
+    { tk: 'A305720', name: 'KODEX 2차전지산업',        iss: 'KODEX',  sec: 'SecondaryBattery', cls: '위험자산', sub: '국내주식_섹터' },
+    { tk: 'A381180', name: 'TIGER 미국필라델피아반도체', iss: 'TIGER', sec: 'Semiconductor',    cls: '위험자산', sub: '해외주식_섹터' },
+    { tk: 'A091160', name: 'KODEX 반도체',             iss: 'KODEX',  sec: 'Semiconductor',    cls: '위험자산', sub: '국내주식_섹터' },
+    { tk: '161510',  name: 'PLUS 고배당주',            iss: 'PLUS',   sec: 'defensive',        cls: '위험자산', sub: '국내주식_섹터' },
+    { tk: '174350',  name: 'TIGER 로우볼',             iss: 'TIGER',  sec: 'defensive',        cls: '위험자산', sub: '국내주식_섹터' },
+    { tk: '182480',  name: 'TIGER 미국MSCI리츠',       iss: 'TIGER',  sec: 'defensive',        cls: '위험자산', sub: '해외주식_섹터' },
+    { tk: '402970',  name: 'ACE 미국배당다우존스',     iss: 'ACE',    sec: 'defensive',        cls: '위험자산', sub: '해외주식_지수' },
+    { tk: '229200',  name: 'KODEX 코스닥150',          iss: 'KODEX',  sec: 'domestic_core',    cls: '위험자산', sub: '국내주식_지수' },
+    { tk: '69500',   name: 'KODEX 200',                iss: 'KODEX',  sec: 'domestic_core',    cls: '위험자산', sub: '국내주식_지수' },
+    { tk: '133690',  name: 'TIGER 미국나스닥100',      iss: 'TIGER',  sec: 'global_macro',     cls: '위험자산', sub: '해외주식_지수' },
+    { tk: '360750',  name: 'TIGER 미국S&P500',         iss: 'TIGER',  sec: 'global_macro',     cls: '위험자산', sub: '해외주식_지수' },
+    { tk: '251350',  name: 'KODEX 선진국MSCI',         iss: 'KODEX',  sec: 'global_macro',     cls: '위험자산', sub: '해외주식_지수' },
+    { tk: '241180',  name: 'TIGER 일본니케이225',      iss: 'TIGER',  sec: 'global_macro',     cls: '위험자산', sub: '해외주식_지수' },
+    { tk: '423160',  name: 'KODEX KOFR금리액티브',     iss: 'KODEX',  sec: 'rate_cash',        cls: '안전자산', sub: '금리연계형_초단기채권' },
+    { tk: '459580',  name: 'KODEX CD금리액티브',       iss: 'KODEX',  sec: 'rate_cash',        cls: '안전자산', sub: '금리연계형_초단기채권' },
+    { tk: 'A261220', name: 'KODEX WTI원유선물',        iss: 'KODEX',  sec: 'real_assets',      cls: '위험자산', sub: 'FX및원자재' },
+    { tk: 'A411060', name: 'ACE KRX금현물',            iss: 'ACE',    sec: 'real_assets',      cls: '위험자산', sub: 'FX및원자재' },
+    { tk: 'A148070', name: 'KIWOOM 국고채10년',        iss: 'KIWOOM', sec: 'sovereign_kr',     cls: '안전자산', sub: '국내채권_종합' },
+    { tk: 'A439870', name: 'KODEX 국고채30년액티브',   iss: 'KODEX',  sec: 'sovereign_kr',     cls: '안전자산', sub: '국내채권_종합' },
+    { tk: 'A157450', name: 'TIGER 단기통안채',         iss: 'TIGER',  sec: 'sovereign_kr',     cls: '안전자산', sub: '금리연계형_초단기채권' },
+    { tk: 'A453850', name: 'ACE 미국30년국채',         iss: 'ACE',    sec: 'sovereign_us',     cls: '안전자산', sub: '해외채권_종합' },
+    { tk: 'A305080', name: 'TIGER 미국채10년선물',     iss: 'TIGER',  sec: 'sovereign_us',     cls: '안전자산', sub: '해외채권_종합' },
+    { tk: 'A329750', name: 'TIGER 미국달러단기채권',   iss: 'TIGER',  sec: 'sovereign_us',     cls: '안전자산', sub: '해외채권_종합' },
+  ];
+
+  function hash(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return h; }
+  function rnd(seed, idx) { const x = Math.sin(seed * 9999 + idx * 7) * 10000; return x - Math.floor(x); }
+
+  // 실제 TFT 예측값 (2025-05-19 기준 signal_return / signal_sharpe)
+  const REAL_SIGNALS = {
+    '133690': { q50: 0.00820517, sharpe: 0.220322 },
+    '161510': { q50: 0.00268647, sharpe: 0.076570 },
+    '174350': { q50: 0.00392880, sharpe: 0.141391 },
+    '182480': { q50: 0.00608985, sharpe: 0.140889 },
+    '229200': { q50: 0.00377736, sharpe: 0.072785 },
+    '241180': { q50: 0.00248856, sharpe: 0.079447 },
+    '251350': { q50: 0.00432058, sharpe: 0.156712 },
+    '360750': { q50: 0.00383498, sharpe: 0.143185 },
+    '402970': { q50: 0.00248323, sharpe: 0.115640 },
+    '423160': { q50: 0.00069736, sharpe: 1.785849 },
+    '459580': { q50: 0.00075945, sharpe: 1.962456 },
+    '69500': { q50: 0.00570773, sharpe: 0.174462 },
+    'A091160': { q50: 0.00891741, sharpe: 0.155158 },
+    'A144600': { q50: 0.00349274, sharpe: 0.056772 },
+    'A157450': { q50: 0.00042682, sharpe: 0.885069 },
+    'A192090': { q50: 0.00154315, sharpe: 0.045939 },
+    'A261220': { q50: 0.00901344, sharpe: 0.120164 },
+    'A261240': { q50: 0.00112539, sharpe: 0.065288 },
+    'A305720': { q50: 0.00716492, sharpe: 0.104743 },
+    'A329750': { q50: 0.00006482, sharpe: 0.003702 },
+    'A381170': { q50: 0.00939643, sharpe: 0.202857 },
+    'A381180': { q50: 0.00805149, sharpe: 0.149465 },
+    'A411060': { q50: 0.00262586, sharpe: 0.106773 },
+    'A439870': { q50: 0.00051048, sharpe: 0.017426 },
+    'A453870': { q50: 0.00577386, sharpe: 0.245751 }
+  };
+
+  const PREDICTIONS = ETFS.map(etf => {
+    const s = hash(etf.tk);
+    const real = REAL_SIGNALS[etf.tk];
+    const q50 = real ? real.q50 : (rnd(s, 1) - 0.45) * 0.04;
+    const spread = 0.005 + rnd(s, 2) * 0.02;
+    const q10 = q50 - spread;
+    const q90 = q50 + spread * (0.7 + rnd(s, 3) * 0.6);
+    const downside = Math.max(0.001, q50 - q10);
+    const sharpe = real ? real.sharpe : q50 / downside;
+    return { ...etf, q10, q50, q90, downside, sharpe, change5d: q50 + (rnd(s, 4) - 0.5) * 0.01 };
+  });
+
+  const RANKED = [...PREDICTIONS].sort((a, b) => b.sharpe - a.sharpe);
+
+  // 실제 conservative 포트폴리오 비중 (2025-05-19)
+  const CONSERVATIVE = [
+    { tk: '459580', w: 0.163344 },
+    { tk: '423160', w: 0.163344 },
+    { tk: 'A157450', w: 0.163344 },
+    { tk: 'A453870', w: 0.088594 },
+    { tk: '133690', w: 0.087094 },
+    { tk: 'A381170', w: 0.050356 },
+    { tk: '182480', w: 0.049644 },
+    { tk: '174350', w: 0.075709 },
+    { tk: '69500', w: 0.084279 },
+    { tk: 'A091160', w: 0.074291 }
+  ].map(h => { const p = PREDICTIONS.find(p => p.tk === h.tk); return p ? { ...p, w: h.w } : { tk: h.tk, name: h.tk, w: h.w, q50: 0, sharpe: 0 }; });
+
+  // 실제 aggressive 포트폴리오 비중 (2025-05-19)
+  const AGGRESSIVE = [
+    { tk: 'A261220', w: 0.20 },
+    { tk: 'A305720', w: 0.15 },
+    { tk: 'A381180', w: 0.10 },
+    { tk: '229200', w: 0.20 },
+    { tk: '133690', w: 0.05 },
+    { tk: 'A439870', w: 0.20 },
+    { tk: 'A329750', w: 0.10 }
+  ].map(h => { const p = PREDICTIONS.find(p => p.tk === h.tk); return p ? { ...p, w: h.w } : { tk: h.tk, name: h.tk, w: h.w, q50: 0, sharpe: 0 }; });
+
+  const HERO = {
+    value: 12_840_000,
+    valueChange7d: -0.002719,
+    expected5d: 0.003750,
+    expected5dBand: [-0.0112, 0.0218],
+    kospiDelta: 0.0021,
+    mdd: -0.042,
+    cvar95: -0.026,
+    sharpeYtd: 1.42,
+    holdings: 10,
+    riskWeight: 0.5100,
+    defensiveWeight: 0.4900,
+  };
+
+  // 실제 레짐 (2025-05-19) — regime_log.csv 기준
+  const REGIME = {
+    mode: 'conservative',
+    reason: 'defensive',
+    marketReturn: 0.002380,
+    marketDownside: 0.033999,
+    sentiment: 0.6910,
+    nextRebalance: '2025-05-26 09:00 KST',
+  };
+
+  // 이번 주 전략 추천 (2025-05-19 주)
+  const WEEKLY_PICK = {
+    recommended: 'conservative',
+    confidence: 0.72,
+    reason: '방어섹터 우위 · 레짐 판단: defensive · 시장 하방 3.4%',
+    cons_expected5d:  0.003750,
+    agg_expected5d:   0.004957,
+    cons_sharpe:      0.8519,
+    agg_sharpe:       0.0841,
+    cons_cvar:       -0.0075,
+    agg_cvar:        -0.0124,
+    week_label:      '2025-05-19 주',
+  };
+
+  // 실제 백테스트 누적 수익률 (2025-01-02 ~ 2025-12-22, 52주)
+  // 출처: backtest_returns.csv — (1+r).cumprod() 방식
+  const BACKTEST = [
+  { date:'2025-01-02', regime:0.997991, conservative:0.997991, aggressive:1.032961, equal_weight:1.010579 },
+  { date:'2025-01-06', regime:0.997726, conservative:0.997726, aggressive:1.033017, equal_weight:1.003666 },
+  { date:'2025-01-13', regime:1.006064, conservative:1.006064, aggressive:1.057679, equal_weight:1.016076 },
+  { date:'2025-01-20', regime:0.984826, conservative:1.011930, aggressive:1.035351, equal_weight:1.019274 },
+  { date:'2025-01-31', regime:0.982671, conservative:1.017854, aggressive:1.033086, equal_weight:1.019729 },
+  { date:'2025-02-03', regime:0.993365, conservative:1.028930, aggressive:1.057785, equal_weight:1.034338 },
+  { date:'2025-02-10', regime:0.999422, conservative:1.035204, aggressive:1.076964, equal_weight:1.045218 },
+  { date:'2025-02-17', regime:0.997495, conservative:1.033208, aggressive:1.092668, equal_weight:1.040914 },
+  { date:'2025-02-24', regime:0.999082, conservative:1.034852, aggressive:1.049377, equal_weight:1.024859 },
+  { date:'2025-03-04', regime:0.994464, conservative:1.030069, aggressive:1.033314, equal_weight:1.013288 },
+  { date:'2025-03-10', regime:0.990794, conservative:1.026267, aggressive:1.036971, equal_weight:1.012494 },
+  { date:'2025-03-17', regime:1.008450, conservative:1.044555, aggressive:1.041818, equal_weight:1.025335 },
+  { date:'2025-03-24', regime:0.992749, conservative:1.028292, aggressive:1.003738, equal_weight:1.004937 },
+  { date:'2025-03-31', regime:0.931996, conservative:0.965364, aggressive:0.928742, equal_weight:0.937357 },
+  { date:'2025-04-07', regime:0.969216, conservative:1.003917, aggressive:0.971934, equal_weight:0.969277 },
+  { date:'2025-04-14', regime:0.960135, conservative:0.994510, aggressive:0.957203, equal_weight:0.968696 },
+  { date:'2025-04-21', regime:0.990051, conservative:1.025497, aggressive:0.980883, equal_weight:0.992557 },
+  { date:'2025-04-28', regime:0.990472, conservative:1.025933, aggressive:0.962465, equal_weight:0.987950 },
+  { date:'2025-05-07', regime:1.020619, conservative:1.057160, aggressive:0.988159, equal_weight:1.010955 },
+  { date:'2025-05-12', regime:1.028079, conservative:1.064887, aggressive:0.977194, equal_weight:1.010383 },
+  { date:'2025-05-19', regime:1.025284, conservative:1.061991, aggressive:0.965999, equal_weight:1.001472 },
+  { date:'2025-05-26', regime:1.031042, conservative:1.067956, aggressive:0.978425, equal_weight:1.010799 },
+  { date:'2025-06-02', regime:1.064371, conservative:1.089885, aggressive:1.010052, equal_weight:1.040843 },
+  { date:'2025-06-09', regime:1.095233, conservative:1.096113, aggressive:1.039339, equal_weight:1.054135 },
+  { date:'2025-06-16', regime:1.114390, conservative:1.096817, aggressive:1.057519, equal_weight:1.061637 },
+  { date:'2025-06-23', regime:1.099578, conservative:1.105136, aggressive:1.043463, equal_weight:1.067724 },
+  { date:'2025-06-30', regime:1.119706, conservative:1.116519, aggressive:1.062563, equal_weight:1.079095 },
+  { date:'2025-07-07', regime:1.141007, conservative:1.135760, aggressive:1.082777, equal_weight:1.097938 },
+  { date:'2025-07-14', regime:1.152512, conservative:1.130675, aggressive:1.093695, equal_weight:1.103730 },
+  { date:'2025-07-21', regime:1.145214, conservative:1.124457, aggressive:1.086770, equal_weight:1.102232 },
+  { date:'2025-07-28', regime:1.137602, conservative:1.115153, aggressive:1.079546, equal_weight:1.090549 },
+  { date:'2025-08-04', regime:1.144541, conservative:1.121913, aggressive:1.086132, equal_weight:1.106471 },
+  { date:'2025-08-11', regime:1.134472, conservative:1.124300, aggressive:1.076576, equal_weight:1.106155 },
+  { date:'2025-08-18', regime:1.140864, conservative:1.130635, aggressive:1.079337, equal_weight:1.112059 },
+  { date:'2025-08-25', regime:1.144655, conservative:1.128495, aggressive:1.082924, equal_weight:1.111045 },
+  { date:'2025-09-01', regime:1.162868, conservative:1.131486, aggressive:1.100154, equal_weight:1.120390 },
+  { date:'2025-09-08', regime:1.176801, conservative:1.145043, aggressive:1.139233, equal_weight:1.142666 },
+  { date:'2025-09-15', regime:1.187662, conservative:1.155611, aggressive:1.160584, equal_weight:1.153725 },
+  { date:'2025-09-22', regime:1.193007, conservative:1.161881, aggressive:1.165808, equal_weight:1.160025 },
+  { date:'2025-09-29', regime:1.211426, conservative:1.183719, aggressive:1.183806, equal_weight:1.180514 },
+  { date:'2025-10-10', regime:1.278214, conservative:1.196049, aggressive:1.249072, equal_weight:1.197840 },
+  { date:'2025-10-13', regime:1.293329, conservative:1.210193, aggressive:1.259144, equal_weight:1.220200 },
+  { date:'2025-10-20', regime:1.298166, conservative:1.214719, aggressive:1.322998, equal_weight:1.243368 },
+  { date:'2025-10-27', regime:1.297379, conservative:1.213982, aggressive:1.323006, equal_weight:1.245637 },
+  { date:'2025-11-03', regime:1.298730, conservative:1.215247, aggressive:1.308386, equal_weight:1.248292 },
+  { date:'2025-11-10', regime:1.302251, conservative:1.218541, aggressive:1.304855, equal_weight:1.248338 },
+  { date:'2025-11-17', regime:1.295971, conservative:1.212665, aggressive:1.258470, equal_weight:1.227842 },
+  { date:'2025-11-24', regime:1.311859, conservative:1.227531, aggressive:1.333043, equal_weight:1.255510 },
+  { date:'2025-12-01', regime:1.318508, conservative:1.233753, aggressive:1.357986, equal_weight:1.269271 },
+  { date:'2025-12-08', regime:1.317216, conservative:1.232544, aggressive:1.369948, equal_weight:1.265929 },
+  { date:'2025-12-15', regime:1.321916, conservative:1.236942, aggressive:1.341859, equal_weight:1.270711 },
+  { date:'2025-12-22', regime:1.316692, conservative:1.232053, aggressive:1.343054, equal_weight:1.263890 }
+  ];
+  // 시각적 참고용 KOSPI / S&P 500 mock 곡선 (원본 dashboard_v2 수식 그대로)
+  BACKTEST.forEach((d, i) => {
+    const t = i / (BACKTEST.length - 1);
+    d.kospi = 1 + 0.07 * t + 0.05 * Math.sin(t * 9 + 1) + (rnd(4, i) - 0.5) * 0.03;
+    d.sp500 = 1 + 0.14 * t + 0.03 * Math.sin(t * 8 + 2) + (rnd(5, i) - 0.5) * 0.02;
+  });
+
+  // 2025-05-19 주 실제 realized_return
+  const ACTUAL_WEEK = {
+    date:         '2025-05-19',
+    conservative: -0.002719,
+    aggressive:   -0.011456,
+    equal_weight: -0.008820,
+    regime:       -0.002719,
+    note:         '실제 target_5d 가중평균 수익률 · 주간 리밸런싱 기준',
+  };
+
+  const SENTIMENT = Array.from({ length: 60 }, (_, i) => {
+    const t = i / 60;
+    return {
+      d: i,
+      dom: 0.15 * Math.sin(t * 6) + 0.08 * Math.sin(t * 17) + (rnd(1, i) - 0.5) * 0.2,
+      glb: 0.10 * Math.sin(t * 5 + 1) + 0.07 * Math.cos(t * 13) + (rnd(2, i) - 0.5) * 0.2,
+    };
+  });
+
+  const _ruleCheck = (cur, lim, op) => (op === '<=' ? cur <= lim : cur >= lim) ? 'pass' : 'warn';
+  const RULES = (() => {
+    const sum = (arr, pred) => arr.filter(pred).reduce((s, c) => s + c.w, 0);
+    const DEF_SECS = new Set(['defensive', 'rate_cash', 'sovereign_kr', 'sovereign_us']);
+    const single    = Math.max(...CONSERVATIVE.map(c => c.w));
+    const risk      = sum(CONSERVATIVE, c => c.cls === '위험자산');
+    const defensive = sum(CONSERVATIVE, c => DEF_SECS.has(c.sec));
+    const sub_us    = sum(CONSERVATIVE, c => c.sub === '해외주식_지수');
+    const sub_kr    = sum(CONSERVATIVE, c => c.sub === '국내주식_지수');
+    const rf        = sum(CONSERVATIVE, c => c.sub === '금리연계형_초단기채권' || c.sub === '국내채권_종합');
+    return [
+      { id: 'single',    label: 'Single ticker cap',  cur: single,    lim: 0.20, op: '<=', status: _ruleCheck(single,    0.20, '<=') },
+      { id: 'risk',      label: 'Risk asset weight',  cur: risk,      lim: 0.70, op: '<=', status: _ruleCheck(risk,      0.70, '<=') },
+      { id: 'defensive', label: 'Defensive floor',    cur: defensive, lim: 0.50, op: '>=', status: _ruleCheck(defensive, 0.50, '>=') },
+      { id: 'sub_us',    label: '해외주식_지수 cap',  cur: sub_us,    lim: 0.30, op: '<=', status: _ruleCheck(sub_us,    0.30, '<=') },
+      { id: 'sub_kr',    label: '국내주식_지수 cap',  cur: sub_kr,    lim: 0.30, op: '<=', status: _ruleCheck(sub_kr,    0.30, '<=') },
+      { id: 'rf',        label: 'Risk-free floor',    cur: rf,        lim: 0.10, op: '>=', status: _ruleCheck(rf,        0.10, '>=') },
+    ];
+  })();
+
+  return { SECTORS, ETFS, PREDICTIONS, RANKED, CONSERVATIVE, AGGRESSIVE,
+           HERO, REGIME, WEEKLY_PICK, ACTUAL_WEEK, SENTIMENT, BACKTEST, RULES };
+})();
+</script>
+  <script type="text/babel">// Icons — minimal Lucide-style stroke SVGs. 1.5 px stroke, currentColor.
+const Icon = (props) => {
+  const { name, size = 18, ...rest } = props;
+  const paths = {
+    chart:     'M3 3v18h18 M7 14l3-3 3 3 4-6',
+    pie:       'M21.21 15.89A10 10 0 1 1 8 2.83 M22 12A10 10 0 0 0 12 2v10z',
+    layers:    'M12 2 2 7l10 5 10-5z M2 17l10 5 10-5 M2 12l10 5 10-5',
+    activity:  'M22 12h-4l-3 9L9 3l-3 9H2',
+    backtest:  'M3 12a9 9 0 1 0 9-9 M3 4v5h5',
+    bell:      'M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9 M10 21a2 2 0 0 0 4 0',
+    download:  'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4 M7 10l5 5 5-5 M12 15V3',
+    refresh:   'M21 12a9 9 0 1 1-3-6.7L21 8 M21 3v5h-5',
+    search:    'M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16z M21 21l-4.35-4.35',
+    user:      'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z',
+    settings:  'M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',
+    arrowUp:   'M12 19V5 M5 12l7-7 7 7',
+    arrowDown: 'M12 5v14 M19 12l-7 7-7-7',
+    chevR:     'M9 18l6-6-6-6',
+    chevL:     'M15 18l-6-6 6-6',
+    plus:      'M12 5v14 M5 12h14',
+    zoom:      'M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16z M21 21l-4.35-4.35 M8 11h6 M11 8v6',
+    info:      'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z M12 16v-4 M12 8h.01',
+  };
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} fill="none"
+         stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" {...rest}>
+      {paths[name] && paths[name].split(' M').map((p, i) => (
+        <path key={i} d={(i === 0 ? '' : 'M') + p}/>
+      ))}
+    </svg>
+  );
+};
+
+// Triangles for up/down — separate from the icon system, used in numbers
+const TriUp = (props) => (
+  <svg viewBox="0 0 8 8" width="8" height="8" {...props}><path d="M4 1 L7 6 L1 6 Z" fill="currentColor"/></svg>
+);
+const TriDown = (props) => (
+  <svg viewBox="0 0 8 8" width="8" height="8" {...props}><path d="M4 7 L1 2 L7 2 Z" fill="currentColor"/></svg>
+);
+
+Object.assign(window, { Icon, TriUp, TriDown });
+</script>
+  <script type="text/babel">// Atoms — Card, Pill, Badge, SectorGlyph, IssuerBadge, NumberFmt, ProgressBar, Sparkline
+const { useMemo } = React;
+
+const Card = ({ title, meta, action, children, padding = 20, style }) => (
+  <div className="etfn-card" style={{ padding: 0, ...style }}>
+    {(title || meta || action) && (
+      <div className="etfn-card-hd" style={{ padding: `14px ${padding}px 10px` }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, minWidth: 0 }}>
+          {title && <div className="etfn-card-title">{title}</div>}
+          {meta && <div className="etfn-card-meta">{meta}</div>}
+        </div>
+        {action}
+      </div>
+    )}
+    <div style={{ padding: `0 ${padding}px ${padding - 4}px` }}>{children}</div>
+  </div>
+);
+
+const Pill = ({ children, tone = 'neutral', dot = false, style }) => {
+  const tones = {
+    neutral: { bg: 'var(--ink-700)', fg: 'var(--fg-default)', d: 'var(--fg-muted)' },
+    primary: { bg: 'var(--brand-burgundy-700)', fg: '#fff', d: '#fff' },
+    up:      { bg: 'var(--gain-100)', fg: 'var(--gain-500)', d: 'var(--gain-500)' },
+    down:    { bg: 'var(--loss-100)', fg: 'var(--loss-500)', d: 'var(--loss-500)' },
+    success: { bg: 'color-mix(in oklab, var(--color-success) 18%, transparent)', fg: 'var(--color-success)', d: 'var(--color-success)' },
+    warn:    { bg: 'color-mix(in oklab, var(--color-warn) 18%, transparent)', fg: 'var(--color-warn)', d: 'var(--color-warn)' },
+    info:    { bg: 'color-mix(in oklab, var(--color-info) 18%, transparent)', fg: 'var(--color-info)', d: 'var(--color-info)' },
+    outline: { bg: 'transparent', fg: 'var(--fg-default)', d: 'var(--fg-muted)', border: 'var(--border-default)' },
+  };
+  const t = tones[tone] || tones.neutral;
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', gap: 5,
+      padding: '3px 9px', borderRadius: 999,
+      fontSize: 11, fontWeight: 600, letterSpacing: '0.02em',
+      background: t.bg, color: t.fg, border: `1px solid ${t.border || 'transparent'}`,
+      ...style,
+    }}>
+      {dot && <span style={{ width: 6, height: 6, borderRadius: 999, background: t.d }}/>}
+      {children}
+    </span>
+  );
+};
+
+const IssuerBadge = ({ issuer }) => (
+  <span style={{
+    display: 'inline-flex', padding: '2px 5px', borderRadius: 4,
+    border: '1px solid var(--border-default)',
+    fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 600,
+    letterSpacing: '0.06em', color: 'var(--fg-muted)',
+    textTransform: 'uppercase',
+  }}>{issuer}</span>
+);
+
+const SectorGlyph = ({ sec, size = 22 }) => {
+  const meta = window.ETFN_DATA.SECTORS[sec] || { glyph: '·', color: 'var(--fg-muted)' };
+  const px = `${size}px`;
+  return (
+    <span style={{
+      width: px, height: px,
+      borderRadius: Math.max(3, size / 4.4),
+      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+      fontFamily: 'var(--font-kr)', fontWeight: 700,
+      fontSize: size <= 22 ? 9 : 11,
+      background: `color-mix(in oklab, ${meta.color} 18%, transparent)`,
+      color: meta.color,
+      flexShrink: 0,
+    }}>{meta.glyph}</span>
+  );
+};
+
+// Number formatting — Korean convention: sign-leading, % suffix, mono.
+const fmtPct = (v, opts = {}) => {
+  const { signed = true, digits = 2 } = opts;
+  const sign = v > 0 ? '+' : v < 0 ? '−' : '';
+  return `${signed ? sign : ''}${Math.abs(v * 100).toFixed(digits)}%`;
+};
+const fmtKRW = (v) => '₩ ' + (v >= 1e6 ? (v / 1e6).toFixed(2) + 'M' : v.toLocaleString());
+
+const NumChange = ({ value, digits = 2, showArrow = true, size = 12 }) => {
+  const cls = value > 0 ? 'fg-up' : value < 0 ? 'fg-down' : 'fg-flat';
+  return (
+    <span className={`mono ${cls}`} style={{ fontSize: size, fontFeatureSettings: "'tnum' 1, 'ss01' 1", display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+      {showArrow && value !== 0 && (value > 0 ? <TriUp/> : <TriDown/>)}
+      {fmtPct(value, { digits })}
+    </span>
+  );
+};
+
+const ProgressBar = ({ value, max = 1, color = 'var(--brand-burgundy-700)', width = 60, height = 6 }) => {
+  const pct = Math.min(100, Math.max(0, (value / max) * 100));
+  return (
+    <span style={{
+      width, height, borderRadius: height / 2,
+      background: 'var(--ink-700)', overflow: 'hidden', display: 'inline-block',
+    }}>
+      <span style={{ display: 'block', height: '100%', width: `${pct}%`, background: color }}/>
+    </span>
+  );
+};
+
+const Sparkline = ({ data, color = 'var(--data-1)', width = 120, height = 28, fill = false }) => {
+  const path = useMemo(() => {
+    if (!data || !data.length) return '';
+    const mn = Math.min(...data), mx = Math.max(...data);
+    const r = (mx - mn) || 1;
+    const step = width / (data.length - 1 || 1);
+    return data.map((v, i) => `${i === 0 ? 'M' : 'L'}${(i * step).toFixed(1)},${(height - ((v - mn) / r) * (height - 2) - 1).toFixed(1)}`).join(' ');
+  }, [data, width, height]);
+  return (
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={{ display: 'block' }}>
+      {fill && <path d={`${path} L${width},${height} L0,${height} Z`} fill={color} fillOpacity="0.15"/>}
+      <path d={path} stroke={color} strokeWidth="1.5" fill="none" strokeLinejoin="round"/>
+    </svg>
+  );
+};
+
+// Hero stat card with optional sparkline / footer
+const StatCard = ({ label, value, valueTone = 'default', sparkData, sparkColor, footer }) => {
+  const tone = valueTone === 'up' ? 'var(--gain-500)' : valueTone === 'down' ? 'var(--loss-500)' : 'var(--fg-strong)';
+  return (
+    <div className="etfn-card" style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <div className="t-eyebrow">{label}</div>
+      <div style={{
+        fontFamily: 'var(--font-sans)', fontWeight: 600,
+        fontSize: 28, letterSpacing: '-0.02em',
+        fontFeatureSettings: "'tnum' 1, 'ss01' 1",
+        color: tone, lineHeight: 1.15,
+      }}>{value}</div>
+      {sparkData && <Sparkline data={sparkData} color={sparkColor} width={220} height={28}/>}
+      {footer && <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-muted)' }}>{footer}</div>}
+    </div>
+  );
+};
+
+Object.assign(window, { Card, Pill, IssuerBadge, SectorGlyph, NumChange, ProgressBar, Sparkline, StatCard, fmtPct, fmtKRW });
+</script>
+  <script type="text/babel">// Shell — Sidebar, Topbar, RegimeBar
+
+const Sidebar = ({ active, onNav }) => {
+  const items = [
+    { id: 'dashboard', label: 'Dashboard',  icon: 'chart' },
+    { id: 'portfolio', label: 'Portfolios', icon: 'pie' },
+    { id: 'etfs',      label: 'ETF signals', icon: 'layers' },
+    { id: 'backtest',  label: 'Backtest',   icon: 'backtest' },
+    { id: 'sentiment', label: 'Sentiment',  icon: 'activity' },
+  ];
+  return (
+    <aside className="etfn-sidebar">
+      <div className="etfn-sidebar-brand">
+        <img src="data:image/png;base64,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" alt="" style={{ width: 32, height: 32, objectFit: "contain" }}/>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--fg-strong)', letterSpacing: '-0.01em' }}>ETF Nowcasting</span>
+          <span style={{ fontSize: 10, color: 'var(--fg-subtle)', fontFamily: 'var(--font-mono)', letterSpacing: '0.1em' }}>BITAMIN · 비타민</span>
+        </div>
+      </div>
+
+      <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, padding: '0 8px' }}>
+        {items.map(it => (
+          <button key={it.id}
+                  onClick={() => onNav(it.id)}
+                  className={`etfn-nav-item ${active === it.id ? 'is-active' : ''}`}>
+            <Icon name={it.icon} size={18}/>
+            <span>{it.label}</span>
+          </button>
+        ))}
+      </nav>
+
+      <div style={{ marginTop: 'auto', padding: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div className="etfn-rebal-card">
+          <div className="t-eyebrow" style={{ marginBottom: 4 }}>Next rebalance</div>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--fg-strong)' }}>Mon · 09:00 KST</div>
+          <div style={{ fontSize: 11, color: 'var(--fg-muted)', marginTop: 4 }}>in 2 days · weekly</div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 6px' }}>
+          <div style={{ width: 28, height: 28, borderRadius: 999, background: 'var(--ink-700)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--fg-muted)' }}>
+            <Icon name="user" size={14}/>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontSize: 12, color: 'var(--fg-default)' }}>@bitamin</span>
+            
+          </div>
+        </div>
+      </div>
+    </aside>
+  );
+};
+
+const Topbar = ({ strategy, onStrategy, onRebalance }) => (
+  <div className="etfn-topbar">
+    <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+      <div className="etfn-search">
+        <Icon name="search" size={14}/>
+        <input placeholder="Search ETF · A360750 · TIGER 미국S&P500"/>
+        <kbd>⌘K</kbd>
+      </div>
+    </div>
+    <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div className="etfn-seg">
+        <button className={strategy === 'auto' ? 'is-active' : ''} onClick={() => onStrategy('auto')}>Auto</button>
+        <button className={strategy === 'conservative' ? 'is-active' : ''} onClick={() => onStrategy('conservative')}>Conservative</button>
+        <button className={strategy === 'aggressive' ? 'is-active' : ''} onClick={() => onStrategy('aggressive')}>Aggressive</button>
+      </div>
+      <button className="etfn-btn etfn-btn--ghost" title="Notifications">
+        <Icon name="bell" size={16}/>
+        <span className="etfn-bell-dot"/>
+      </button>
+      <button className="etfn-btn etfn-btn--primary" onClick={onRebalance}>
+        <Icon name="refresh" size={14}/>
+        <span>Rebalance</span>
+      </button>
+    </div>
+  </div>
+);
+
+const RegimeBar = ({ regime }) => {
+  const bg = regime.mode === 'aggressive'
+    ? 'linear-gradient(90deg, var(--brand-burgundy-900) 0%, var(--brand-burgundy-700) 40%, var(--brand-orange-500) 100%)'
+    : regime.mode === 'sentiment_stoploss'
+    ? 'color-mix(in oklab, var(--loss-700) 80%, var(--ink-900))'
+    : 'var(--ink-800)';
+  const fg = '#fff';
+  return (
+    <div style={{
+      height: 40, background: bg, color: fg,
+      display: 'flex', alignItems: 'center', padding: '0 20px', gap: 14,
+      borderBottom: '1px solid var(--border-hairline)',
+      backdropFilter: regime.mode === 'conservative' ? 'blur(12px)' : 'none',
+    }}>
+      <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center',
+                     fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase',
+                     fontWeight: 700, opacity: 0.85 }}>
+        <span style={{ width: 6, height: 6, borderRadius: 999, background: fg,
+                       boxShadow: '0 0 0 4px rgba(255,255,255,0.18)' }}/>
+        Regime
+      </span>
+      <span style={{ fontSize: 13, fontWeight: 600 }}>
+        {regime.mode.toUpperCase()} · {regime.reason}
+      </span>
+      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, opacity: 0.78 }}>
+        market 5d {fmtPct(regime.marketReturn, { digits: 2 })} ·
+        downside {(regime.marketDownside * 100).toFixed(1)}% ·
+        sentiment {regime.sentiment >= 0 ? '+' : ''}{regime.sentiment.toFixed(2)}
+      </span>
+      <span style={{ marginLeft: 'auto', fontFamily: 'var(--font-mono)', fontSize: 12, opacity: 0.85 }}>
+        Next rebalance · {regime.nextRebalance}
+      </span>
+    </div>
+  );
+};
+
+Object.assign(window, { Sidebar, Topbar, RegimeBar });
+</script>
+  <script type="text/babel">// Holdings — main portfolio table
+
+const HoldingsTable = ({ holdings, dense = false, onPick }) => {
+  return (
+    <table className="etfn-table">
+      <thead>
+        <tr>
+          <th style={{ width: 28 }}></th>
+          <th>Ticker</th>
+          <th>Name</th>
+          <th className="r">5d q50</th>
+          <th className="r">Band q10–q90</th>
+          <th className="r">Sharpe</th>
+          <th className="r" style={{ width: 130 }}>Weight</th>
+        </tr>
+      </thead>
+      <tbody>
+        {holdings.map(h => (
+          <tr key={h.tk} onClick={() => onPick && onPick(h)} style={{ cursor: onPick ? 'pointer' : 'default' }}>
+            <td><SectorGlyph sec={h.sec} size={22}/></td>
+            <td className="mono" style={{ fontWeight: 500, color: 'var(--fg-strong)' }}>{h.tk}</td>
+            <td>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, whiteSpace: 'nowrap' }}>
+                <IssuerBadge issuer={h.iss}/>
+                <span className="kr" style={{ color: 'var(--fg-default)', overflow: 'hidden', textOverflow: 'ellipsis' }}>{h.name.replace(/^[A-Z]+ /, '')}</span>
+                <span style={{ color: 'var(--fg-subtle)', fontSize: 11 }}>· {h.sec}</span>
+              </div>
+            </td>
+            <td className="r"><NumChange value={h.q50}/></td>
+            <td className="r mono" style={{ fontSize: 11, color: 'var(--fg-muted)' }}>
+              [{fmtPct(h.q10, { digits: 2 })}, {fmtPct(h.q90, { digits: 2 })}]
+            </td>
+            <td className="r mono" style={{ fontFeatureSettings: "'tnum' 1" }}>{h.sharpe.toFixed(2)}</td>
+            <td className="r">
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, justifyContent: 'flex-end' }}>
+                <ProgressBar value={h.w || 0} max={0.20} width={60} height={6}/>
+                <span className="mono" style={{ minWidth: 44, textAlign: 'right' }}>{((h.w || 0) * 100).toFixed(1)}%</span>
+              </span>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+};
+
+// Allocation donut + legend
+const AllocationPie = ({ holdings, size = 160 }) => {
+  const total = holdings.reduce((s, h) => s + h.w, 0) || 1;
+  const radius = size / 2 - 8;
+  const cx = size / 2, cy = size / 2;
+  let acc = 0;
+  const segs = holdings.map(h => {
+    const start = (acc / total) * Math.PI * 2 - Math.PI / 2;
+    acc += h.w;
+    const end = (acc / total) * Math.PI * 2 - Math.PI / 2;
+    const x1 = cx + Math.cos(start) * radius;
+    const y1 = cy + Math.sin(start) * radius;
+    const x2 = cx + Math.cos(end) * radius;
+    const y2 = cy + Math.sin(end) * radius;
+    const large = end - start > Math.PI ? 1 : 0;
+    const color = (window.ETFN_DATA.SECTORS[h.sec] || {}).color || 'var(--ink-300)';
+    return { d: `M ${cx} ${cy} L ${x1} ${y1} A ${radius} ${radius} 0 ${large} 1 ${x2} ${y2} Z`, color, h };
+  });
+
+  return (
+    <div style={{ display: 'flex', gap: 18, alignItems: 'center' }}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        {segs.map((s, i) => (
+          <path key={i} d={s.d} fill={s.color} stroke="var(--bg-elev-1)" strokeWidth="1.5"/>
+        ))}
+        <circle cx={cx} cy={cy} r={radius * 0.55} fill="var(--bg-elev-1)"/>
+        <text x={cx} y={cy - 4} textAnchor="middle" fontFamily="var(--font-mono)" fontSize="11" fill="var(--fg-subtle)">holdings</text>
+        <text x={cx} y={cy + 14} textAnchor="middle" fontFamily="var(--font-sans)" fontSize="22" fontWeight="700" fill="var(--fg-strong)">{holdings.length}</text>
+      </svg>
+      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
+        {(() => {
+          // Aggregate by sector for legend tidiness
+          const bySec = {};
+          holdings.forEach(h => { bySec[h.sec] = (bySec[h.sec] || 0) + h.w; });
+          return Object.entries(bySec).sort((a, b) => b[1] - a[1]).map(([sec, w]) => {
+            const meta = window.ETFN_DATA.SECTORS[sec] || {};
+            return (
+              <div key={sec} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
+                <span style={{ width: 8, height: 8, borderRadius: 2, background: meta.color }}/>
+                <span style={{ flex: 1, color: 'var(--fg-default)' }}>{sec}</span>
+                <span className="mono" style={{ color: 'var(--fg-muted)' }}>{(w * 100).toFixed(1)}%</span>
+              </div>
+            );
+          });
+        })()}
+      </div>
+    </div>
+  );
+};
+
+Object.assign(window, { HoldingsTable, AllocationPie });
+</script>
+  <script type="text/babel">// Charts — QuantileFan, BacktestChart, SentimentChart, SectorBarChart
+
+const QuantileFan = ({ etf, width = 600, height = 220 }) => {
+  const W = width, H = height, PADL = 44, PADR = 16, PADT = 24, PADB = 28;
+  const ix = (i, n) => PADL + (i / (n - 1)) * (W - PADL - PADR);
+  // Generate a 24-day forward path biased toward the etf's q10/q50/q90
+  const days = 24, nowIdx = 18;
+  function rnd(s, i) { const x = Math.sin(s * 999 + i * 7) * 10000; return x - Math.floor(x); }
+  const seed = etf.tk.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+  const q50series = Array.from({ length: days }, (_, i) => {
+    const t = (i - nowIdx) / (days - nowIdx);
+    return t < 0 ? etf.q50 * t * -0.4 + (rnd(seed, i) - 0.5) * 0.004 : etf.q50 * t + (rnd(seed, i) - 0.5) * 0.002;
+  });
+  const q10series = q50series.map((v, i) => v + (etf.q10 - etf.q50) * Math.max(0, (i - nowIdx) / (days - nowIdx)));
+  const q90series = q50series.map((v, i) => v + (etf.q90 - etf.q50) * Math.max(0, (i - nowIdx) / (days - nowIdx)));
+  const realised = q50series.slice(0, nowIdx + 1).map((v, i) => v + (rnd(seed * 3, i) - 0.5) * 0.008);
+
+  const mn = Math.min(etf.q10, ...realised) - 0.005;
+  const mx = Math.max(etf.q90, ...realised) + 0.005;
+  const iy = v => PADT + (1 - (v - mn) / (mx - mn)) * (H - PADT - PADB);
+
+  const polyline = (vals) => vals.map((v, i) => `${ix(i, days)},${iy(v).toFixed(1)}`).join(' ');
+  const fanPath = (() => {
+    const top = q90series.map((v, i) => `${ix(i, days)},${iy(v).toFixed(1)}`).join(' L ');
+    const bot = [...q10series].reverse().map((v, i) => `${ix(days - 1 - i, days)},${iy(v).toFixed(1)}`).join(' L ');
+    return `M ${top} L ${bot} Z`;
+  })();
+  const color = (window.ETFN_DATA.SECTORS[etf.sec] || {}).color || 'var(--data-1)';
+
+  // y-axis ticks
+  const ticks = [mx, (mx + mn) / 2, mn].map(v => ({ v, y: iy(v) }));
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} preserveAspectRatio="none">
+      <g stroke="rgba(255,255,255,0.05)">
+        {ticks.map((t, i) => <line key={i} x1={PADL} y1={t.y} x2={W - PADR} y2={t.y}/>)}
+      </g>
+      <g fontFamily="var(--font-mono)" fontSize="10" fill="var(--fg-subtle)">
+        {ticks.map((t, i) => <text key={i} x={PADL - 6} y={t.y + 3} textAnchor="end">{fmtPct(t.v, { digits: 1 })}</text>)}
+      </g>
+      <path d={fanPath} fill={color} fillOpacity="0.18"/>
+      <polyline fill="none" stroke={color} strokeWidth="1.5" points={polyline(q50series)}/>
+      <polyline fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="1" strokeDasharray="2 3" points={polyline(realised)}/>
+      <line x1={ix(nowIdx, days)} y1={PADT - 4} x2={ix(nowIdx, days)} y2={H - PADB} stroke="rgba(255,255,255,0.30)" strokeWidth="1" strokeDasharray="2 3"/>
+      <text x={ix(nowIdx, days) + 4} y={PADT + 4} fontFamily="var(--font-mono)" fontSize="10" fill="rgba(255,255,255,0.65)">now</text>
+      {/* x-axis */}
+      <g fontFamily="var(--font-mono)" fontSize="10" fill="var(--fg-subtle)">
+        <text x={PADL} y={H - 8}>t−18d</text>
+        <text x={ix(nowIdx, days)} y={H - 8} textAnchor="middle">t0</text>
+        <text x={W - PADR} y={H - 8} textAnchor="end">t+5d</text>
+      </g>
+      {/* legend */}
+      <g fontFamily="var(--font-mono)" fontSize="10" fill="rgba(255,255,255,0.78)">
+        <rect x={PADL} y={6} width="10" height="6" fill={color} fillOpacity="0.4"/>
+        <text x={PADL + 14} y={12}>q10–q90</text>
+        <line x1={PADL + 80} y1={9} x2={PADL + 92} y2={9} stroke={color} strokeWidth="1.5"/>
+        <text x={PADL + 96} y={12}>q50</text>
+        <line x1={PADL + 130} y1={9} x2={PADL + 142} y2={9} stroke="rgba(255,255,255,0.85)" strokeWidth="1" strokeDasharray="2 3"/>
+        <text x={PADL + 146} y={12}>realised</text>
+      </g>
+    </svg>
+  );
+};
+
+const BacktestChart = ({ data, width = 600, height = 200 }) => {
+  const W = width, H = height, PADL = 44, PADR = 16, PADT = 20, PADB = 24;
+  const all = data.flatMap(d => [d.conservative, d.regime, d.aggressive, d.equal_weight, d.kospi, d.sp500]);
+  const mn = Math.min(...all), mx = Math.max(...all);
+  const range = mx - mn || 1e-9;
+  const ix = i => PADL + (i / Math.max(data.length - 1, 1)) * (W - PADL - PADR);
+  const iy = v => PADT + (1 - (v - mn) / range) * (H - PADT - PADB);
+  const make = (key) => data.map((d, i) => `${ix(i).toFixed(1)},${iy(d[key]).toFixed(1)}`).join(' ');
+
+  const ticks = [mx, (mx * 2 + mn) / 3, (mx + mn * 2) / 3, mn].map(v => ({ v, y: iy(v) }));
+  const first = data[0]?.date?.slice(0, 7) ?? '';
+  const mid   = data[Math.floor(data.length / 2)]?.date?.slice(0, 7) ?? '';
+  const last  = data[data.length - 1]?.date?.slice(0, 7) ?? '';
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} preserveAspectRatio="none">
+      <g stroke="rgba(255,255,255,0.05)">
+        {ticks.map((t, i) => <line key={i} x1={PADL} y1={t.y} x2={W - PADR} y2={t.y}/>)}
+      </g>
+      <g fontFamily="var(--font-mono)" fontSize="10" fill="var(--fg-subtle)">
+        {ticks.map((t, i) => <text key={i} x={PADL - 6} y={t.y + 3} textAnchor="end">{((t.v - 1) * 100).toFixed(0)}%</text>)}
+        <text x={PADL} y={H - 6}>{first}</text>
+        <text x={(PADL + W - PADR) / 2} y={H - 6} textAnchor="middle">{mid}</text>
+        <text x={W - PADR} y={H - 6} textAnchor="end">{last}</text>
+      </g>
+      {/* 참고 지수 (mock · 시각 용도) */}
+      <polyline fill="none" stroke="var(--ink-300)" strokeWidth="1" strokeDasharray="2 3" points={make('kospi')}/>
+      <polyline fill="none" stroke="var(--data-4)" strokeWidth="1" strokeDasharray="2 3" points={make('sp500')}/>
+      {/* 전략 곡선 */}
+      <polyline fill="none" stroke="var(--data-5)" strokeWidth="1" strokeDasharray="3 2" points={make('aggressive')}/>
+      <polyline fill="none" stroke="var(--data-3)" strokeWidth="1" strokeDasharray="3 2" points={make('equal_weight')}/>
+      <polyline fill="none" stroke="var(--data-1)" strokeWidth="1.5" points={make('conservative')}/>
+      <polyline fill="none" stroke="var(--brand-orange-500)" strokeWidth="1.8" points={make('regime')}/>
+      <g fontFamily="var(--font-mono)" fontSize="9">
+        <rect x={PADL} y={4} width="10" height="3" fill="var(--brand-orange-500)"/>
+        <text x={PADL + 14} y={9} fill="rgba(255,255,255,0.85)">Regime</text>
+        <rect x={PADL + 62} y={4} width="10" height="3" fill="var(--data-1)"/>
+        <text x={PADL + 76} y={9} fill="var(--fg-muted)">Conservative</text>
+        <rect x={PADL + 172} y={4} width="10" height="3" fill="var(--data-5)"/>
+        <text x={PADL + 186} y={9} fill="var(--fg-subtle)">Aggressive</text>
+        <rect x={PADL + 258} y={4} width="10" height="3" fill="var(--data-3)"/>
+        <text x={PADL + 272} y={9} fill="var(--fg-subtle)">EqWt</text>
+        <line x1={PADL + 310} y1={6} x2={PADL + 320} y2={6} stroke="var(--data-4)" strokeWidth="1" strokeDasharray="2 3"/>
+        <text x={PADL + 324} y={9} fill="var(--fg-subtle)">S&amp;P500</text>
+        <line x1={PADL + 372} y1={6} x2={PADL + 382} y2={6} stroke="var(--ink-300)" strokeWidth="1" strokeDasharray="2 3"/>
+        <text x={PADL + 386} y={9} fill="var(--fg-subtle)">KOSPI</text>
+      </g>
+    </svg>
+  );
+};
+
+const SentimentChart = ({ data, width = 600, height = 110 }) => {
+  const W = width, H = height, PADL = 40, PADR = 12, PADT = 10, PADB = 22;
+  const all = data.flatMap(d => [d.dom, d.glb]);
+  const mn = Math.min(-0.5, ...all), mx = Math.max(0.5, ...all);
+  const ix = i => PADL + (i / (data.length - 1)) * (W - PADL - PADR);
+  const iy = v => PADT + (1 - (v - mn) / (mx - mn)) * (H - PADT - PADB);
+  const baseline = iy(0);
+  // domestic — area
+  const areaPath = (() => {
+    const top = data.map((d, i) => `${ix(i)},${iy(d.dom).toFixed(1)}`).join(' L ');
+    return `M ${top} L ${ix(data.length - 1)},${baseline} L ${ix(0)},${baseline} Z`;
+  })();
+  const domLine = data.map((d, i) => `${ix(i)},${iy(d.dom).toFixed(1)}`).join(' ');
+  const glbLine = data.map((d, i) => `${ix(i)},${iy(d.glb).toFixed(1)}`).join(' ');
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} preserveAspectRatio="none">
+      <line x1={PADL} y1={baseline} x2={W - PADR} y2={baseline} stroke="rgba(255,255,255,0.18)" strokeWidth="1" strokeDasharray="2 3"/>
+      <path d={areaPath} fill="var(--data-1)" fillOpacity="0.10"/>
+      <polyline fill="none" stroke="var(--data-1)" strokeWidth="1.5" points={domLine}/>
+      <polyline fill="none" stroke="var(--data-4)" strokeWidth="1" strokeDasharray="3 2" points={glbLine}/>
+      <g fontFamily="var(--font-mono)" fontSize="10" fill="var(--fg-subtle)">
+        <text x={PADL - 4} y={iy(0.5) + 3} textAnchor="end">+0.5</text>
+        <text x={PADL - 4} y={baseline + 3} textAnchor="end">0</text>
+        <text x={PADL - 4} y={iy(-0.5) + 3} textAnchor="end">−0.5</text>
+        <text x={PADL} y={H - 6}>t−60d</text>
+        <text x={W - PADR} y={H - 6} textAnchor="end">today</text>
+      </g>
+      <g fontFamily="var(--font-mono)" fontSize="10">
+        <line x1={W - PADR - 130} y1={6} x2={W - PADR - 118} y2={6} stroke="var(--data-1)" strokeWidth="1.5"/>
+        <text x={W - PADR - 114} y={9} fill="rgba(255,255,255,0.78)">domestic 감성</text>
+        <line x1={W - PADR - 50} y1={6} x2={W - PADR - 38} y2={6} stroke="var(--data-4)" strokeWidth="1" strokeDasharray="3 2"/>
+        <text x={W - PADR - 34} y={9} fill="var(--fg-subtle)">global</text>
+      </g>
+    </svg>
+  );
+};
+
+// Sector exposure as horizontal bars
+const SectorBars = ({ holdings }) => {
+  const bySec = {};
+  holdings.forEach(h => { bySec[h.sec] = (bySec[h.sec] || 0) + h.w; });
+  const rows = Object.entries(bySec).sort((a, b) => b[1] - a[1]);
+  const max = Math.max(...rows.map(r => r[1]));
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      {rows.map(([sec, w]) => {
+        const color = (window.ETFN_DATA.SECTORS[sec] || {}).color || 'var(--ink-300)';
+        return (
+          <div key={sec} style={{ display: 'grid', gridTemplateColumns: '120px 1fr 50px', alignItems: 'center', gap: 8, fontSize: 12 }}>
+            <span style={{ color: 'var(--fg-default)' }}>{sec}</span>
+            <span style={{ height: 6, borderRadius: 3, background: 'var(--ink-700)', overflow: 'hidden' }}>
+              <span style={{ display: 'block', height: '100%', width: `${(w / max) * 100}%`, background: color }}/>
+            </span>
+            <span className="mono" style={{ textAlign: 'right', color: 'var(--fg-muted)' }}>{(w * 100).toFixed(1)}%</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+Object.assign(window, { QuantileFan, BacktestChart, SentimentChart, SectorBars });
+</script>
+  <script type="text/babel">// Risk ledger — DB GAPS rule pass/fail rows
+
+const RiskLedger = ({ rules }) => {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      {rules.map(r => {
+        const tone = r.status === 'pass' ? 'var(--color-success)'
+                   : r.status === 'warn' ? 'var(--color-warn)'
+                   : 'var(--color-negative)';
+        const pct = r.op === '<='
+          ? Math.min(100, (r.cur / r.lim) * 100)
+          : Math.min(100, (r.cur / Math.max(r.lim, 0.0001)) * 100);
+        return (
+          <div key={r.id} style={{
+            display: 'grid',
+            gridTemplateColumns: '14px 1fr 60px 90px auto',
+            alignItems: 'center', gap: 10,
+            fontFamily: 'var(--font-mono)', fontSize: 12,
+            padding: '4px 0',
+          }}>
+            <span style={{ color: tone }}>●</span>
+            <span style={{ fontFamily: 'var(--font-sans)', color: 'var(--fg-default)' }} className={/[가-힣]/.test(r.label) ? 'kr' : ''}>{r.label}</span>
+            <span style={{ color: 'var(--fg-strong)', textAlign: 'right' }}>{(r.cur * 100).toFixed(1)}%</span>
+            <span style={{ height: 6, background: 'var(--ink-700)', borderRadius: 3, overflow: 'hidden' }}>
+              <span style={{ display: 'block', height: '100%', width: `${pct}%`, background: tone }}/>
+            </span>
+            <span style={{ color: 'var(--fg-subtle)', fontSize: 11 }}>{r.op} {(r.lim * 100).toFixed(0)}%</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+// Feature decomposition (HNAM-style additive breakdown)
+const FactorDecomp = ({ factors }) => {
+  // factors: [{ name, contribution (signed) }, ...]
+  const max = Math.max(...factors.map(f => Math.abs(f.contribution)));
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      {factors.map(f => {
+        const isUp = f.contribution >= 0;
+        const tone = isUp ? 'var(--gain-500)' : 'var(--loss-500)';
+        const w = (Math.abs(f.contribution) / max) * 100;
+        return (
+          <div key={f.name} style={{
+            display: 'grid', gridTemplateColumns: '120px 1fr 1fr 60px',
+            alignItems: 'center', gap: 8, fontSize: 12,
+          }}>
+            <span style={{ color: 'var(--fg-default)' }}>{f.name}</span>
+            <span style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              {!isUp && <span style={{ height: 6, width: `${w}%`, background: tone, borderRadius: 3 }}/>}
+            </span>
+            <span style={{ display: 'flex' }}>
+              {isUp && <span style={{ height: 6, width: `${w}%`, background: tone, borderRadius: 3 }}/>}
+            </span>
+            <span className="mono" style={{ color: tone, textAlign: 'right' }}>
+              {f.contribution >= 0 ? '+' : '−'}{Math.abs(f.contribution * 100).toFixed(2)}%
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+Object.assign(window, { RiskLedger, FactorDecomp });
+</script>
+  <script type="text/babel">// Screens — DashboardScreen, PortfolioScreen, EtfDetailScreen, BacktestScreen, SentimentScreen
+const { useState: useS } = React;
+
+// ──────────────────────────── 이번 주 전략 추천 카드 ────────────────────────────
+const WeeklyPickCard = ({ onStrategy }) => {
+  const D = window.ETFN_DATA;
+  const W = D.WEEKLY_PICK;
+  const A = D.ACTUAL_WEEK;
+  const isCons = W.recommended === 'conservative';
+  const recColor = isCons ? 'var(--data-5)' : 'var(--brand-orange-500)';
+  const recLabel = isCons ? 'Conservative' : 'Aggressive';
+
+  return (
+    <div style={{
+      background: `linear-gradient(135deg, color-mix(in oklab, ${recColor} 12%, var(--bg-elev-1)), var(--bg-elev-1))`,
+      border: `1px solid color-mix(in oklab, ${recColor} 30%, var(--border-default))`,
+      borderRadius: 12, padding: '16px 20px',
+      display: 'grid', gridTemplateColumns: '1fr auto', gap: 16, alignItems: 'start',
+    }}>
+      {/* 왼쪽: 추천 이유 */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{
+            fontSize: 10, fontWeight: 700, letterSpacing: '0.1em',
+            textTransform: 'uppercase', color: 'var(--fg-subtle)',
+            fontFamily: 'var(--font-mono)',
+          }}>이번 주 전략 추천 · {W.week_label}</span>
+          <Pill tone={isCons ? 'info' : 'primary'} dot>{recLabel}</Pill>
+          <span style={{
+            fontSize: 11, color: 'var(--fg-muted)', fontFamily: 'var(--font-mono)',
+          }}>신뢰도 {(W.confidence * 100).toFixed(0)}%</span>
+        </div>
+        <div style={{
+          fontSize: 13, color: 'var(--fg-default)', lineHeight: 1.5,
+          fontFamily: 'var(--font-kr)',
+        }}>{W.reason}</div>
+
+        {/* 전략 비교 mini 수치 */}
+        <div style={{ display: 'flex', gap: 20, marginTop: 4 }}>
+          {[
+            { label: 'Conservative', e5d: W.cons_expected5d, sharpe: W.cons_sharpe, cvar: W.cons_cvar, active: isCons },
+            { label: 'Aggressive',   e5d: W.agg_expected5d,  sharpe: W.agg_sharpe,  cvar: W.agg_cvar,  active: !isCons },
+          ].map(s => (
+            <div key={s.label} style={{
+              padding: '8px 12px', borderRadius: 8,
+              background: s.active
+                ? `color-mix(in oklab, ${recColor} 20%, var(--bg-elev-2))`
+                : 'var(--bg-elev-2)',
+              border: `1px solid ${s.active ? `color-mix(in oklab, ${recColor} 40%, transparent)` : 'var(--border-hairline)'}`,
+              display: 'flex', flexDirection: 'column', gap: 4, minWidth: 140,
+              cursor: 'pointer',
+            }} onClick={() => onStrategy(s.label.toLowerCase())}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: s.active ? recColor : 'var(--fg-muted)' }}>
+                  {s.label}
+                </span>
+                {s.active && <span style={{ fontSize: 10, color: recColor }}>★ 추천</span>}
+              </div>
+              <div style={{ display: 'flex', gap: 12, fontFamily: 'var(--font-mono)', fontSize: 11 }}>
+                <span>E[5d] <span style={{ color: 'var(--gain-500)' }}>{fmtPct(s.e5d)}</span></span>
+                <span>Sharpe <span style={{ color: 'var(--fg-strong)' }}>{s.sharpe.toFixed(2)}</span></span>
+              </div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--loss-500)' }}>
+                CVaR 95% {fmtPct(s.cvar)}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 오른쪽: 지난주 실제 수익률 */}
+      <div style={{
+        padding: '10px 14px', borderRadius: 8, background: 'var(--bg-elev-2)',
+        border: '1px solid var(--border-hairline)', minWidth: 200,
+        display: 'flex', flexDirection: 'column', gap: 6,
+      }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em',
+                      textTransform: 'uppercase', color: 'var(--fg-subtle)',
+                      fontFamily: 'var(--font-mono)', marginBottom: 2 }}>
+          지난주 실제 수익률 · {A.date}
+        </div>
+        {[
+          { label: 'Conservative', val: A.conservative },
+          { label: 'Aggressive',   val: A.aggressive },
+          { label: 'Equal Weight', val: A.equal_weight },
+          { label: 'Regime',       val: A.regime },
+        ].map(r => (
+          <div key={r.label} style={{
+            display: 'flex', justifyContent: 'space-between',
+            alignItems: 'center', fontSize: 12,
+          }}>
+            <span style={{ color: 'var(--fg-muted)' }}>{r.label}</span>
+            <NumChange value={r.val} size={13}/>
+          </div>
+        ))}
+        <div style={{ fontSize: 10, color: 'var(--fg-subtle)', fontFamily: 'var(--font-mono)',
+                      marginTop: 4, borderTop: '1px solid var(--border-hairline)', paddingTop: 4 }}>
+          {A.note}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ──────────────────────────── Dashboard ────────────────────────────
+const filterBacktest = (all, range) => {
+  if (range === 'All' || range === '1Y') return all;
+  const lastDate = new Date(all[all.length - 1].date);
+  const cutoff = new Date(lastDate);
+  if (range === '1M') cutoff.setDate(cutoff.getDate() - 30);
+  else if (range === '3M') cutoff.setDate(cutoff.getDate() - 90);
+  else if (range === 'YTD') { cutoff.setMonth(0); cutoff.setDate(1); }
+  return all.filter(d => new Date(d.date) >= cutoff);
+};
+
+const DashboardScreen = ({ strategy, onPick, onStrategy }) => {
+  const D = window.ETFN_DATA;
+  const portfolio = strategy === 'aggressive' ? D.AGGRESSIVE : D.CONSERVATIVE;
+  const valSpark = D.BACKTEST.slice(-30).map(d => d.conservative);
+  const [btRange, setBtRange] = React.useState('YTD');
+  const btData = filterBacktest(D.BACKTEST, btRange);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* 이번 주 전략 추천 */}
+      <WeeklyPickCard onStrategy={onStrategy}/>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, alignItems: 'start' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {/* Hero stat strip */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+            <StatCard label="Portfolio value" value={fmtKRW(D.HERO.value)}
+              sparkData={valSpark} sparkColor="var(--gain-500)"
+              footer={<><span className="fg-up">▲ {fmtPct(D.HERO.valueChange7d, { digits: 2 })}</span> · 7d</>}/>
+            <StatCard label="Expected 5d" value={fmtPct(D.HERO.expected5d)} valueTone={D.HERO.expected5d >= 0 ? 'up' : 'down'}
+              footer={<>q50 · band [{fmtPct(D.HERO.expected5dBand[0])}, {fmtPct(D.HERO.expected5dBand[1])}]</>}/>
+            <StatCard label="MDD · YTD" value={fmtPct(D.HERO.mdd)} valueTone="down"
+              sparkData={D.BACKTEST.slice(-30).map(d => -Math.max(0, 1 - d.conservative))}
+              sparkColor="var(--loss-500)"
+              footer={<>peak 03/14 · trough 04/02</>}/>
+            <StatCard label="CVaR 95% · 5d" value={fmtPct(D.HERO.cvar95)} valueTone="down"
+              footer={<>α = 0.05 · pessimistic <br/>basket of {portfolio.length} holdings</>}/>
+          </div>
+
+          {/* Portfolio table */}
+          <Card title="Today's portfolio"
+                meta={<>· {strategy === 'aggressive' ? 'Aggressive · Greedy Knapsack' : 'Conservative · Sharpe-weighted'} · {portfolio.length} holdings</>}
+                action={<button className="etfn-btn etfn-btn--ghost">
+                  <Icon name="download" size={14}/>
+                  <span style={{ fontSize: 12 }}>Export CSV</span>
+                </button>}>
+            <HoldingsTable holdings={portfolio} onPick={onPick}/>
+          </Card>
+
+          {/* Backtest preview */}
+          <Card title="Backtest"
+                meta="· conservative · aggressive · equal_weight · regime"
+                action={<div className="etfn-seg etfn-seg--sm">
+                  {['1M','3M','YTD','1Y','All'].map(r => (
+                    <button key={r} className={btRange === r ? 'is-active' : ''} onClick={() => setBtRange(r)}>{r}</button>
+                  ))}
+                </div>}>
+            <BacktestChart data={btData} width={700} height={200}/>
+          </Card>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <Card title="Allocation" meta="· by sector">
+            <AllocationPie holdings={portfolio} size={140}/>
+          </Card>
+
+          <Card title="Risk ledger" meta="· DB GAPS"
+            action={<Pill tone="success" dot>5 / 6 pass</Pill>}>
+            <RiskLedger rules={D.RULES}/>
+          </Card>
+
+          <Card title="Top signals" meta="· by Sharpe">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {D.RANKED.slice(0, 5).map(r => (
+                <div key={r.tk} onClick={() => onPick(r)} style={{
+                  display: 'flex', gap: 10, alignItems: 'center',
+                  padding: '6px 4px', cursor: 'pointer', borderRadius: 6,
+                }} className="etfn-row-hover">
+                  <SectorGlyph sec={r.sec} size={22}/>
+                  <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, flex: 1 }}>
+                    <span className="mono" style={{ fontSize: 11, color: 'var(--fg-strong)' }}>{r.tk}</span>
+                    <span className="kr" style={{ fontSize: 12, color: 'var(--fg-default)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.name}</span>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <NumChange value={r.q50}/>
+                    <div className="mono" style={{ fontSize: 10, color: 'var(--fg-subtle)' }}>sharpe {r.sharpe.toFixed(2)}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ──────────────────────────── Portfolio comparison ────────────────────────────
+const PortfolioScreen = ({ onPick }) => {
+  const D = window.ETFN_DATA;
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <Card title="Conservative" meta="· Sharpe-weighted softmax"
+          action={<Pill tone="info" dot>defensive floor 53%</Pill>}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+              <Mini lbl="E[5d]"  val={fmtPct(0.0024)} tone="up"/>
+              <Mini lbl="Sharpe" val="1.42"/>
+              <Mini lbl="CVaR 95%" val="−1.8%" tone="down"/>
+            </div>
+            <AllocationPie holdings={D.CONSERVATIVE} size={140}/>
+          </div>
+        </Card>
+        <Card title="Aggressive" meta="· Greedy Knapsack · momentum"
+          action={<Pill tone="primary" dot>active · auto regime</Pill>}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+              <Mini lbl="E[5d]"  val={fmtPct(0.0064)} tone="up"/>
+              <Mini lbl="Sharpe" val="1.78"/>
+              <Mini lbl="CVaR 95%" val="−3.2%" tone="down"/>
+            </div>
+            <AllocationPie holdings={D.AGGRESSIVE} size={140}/>
+          </div>
+        </Card>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <Card title="Conservative · holdings">
+          <HoldingsTable holdings={D.CONSERVATIVE} onPick={onPick}/>
+        </Card>
+        <Card title="Aggressive · holdings">
+          <HoldingsTable holdings={D.AGGRESSIVE} onPick={onPick}/>
+        </Card>
+      </div>
+
+      <Card title="DB GAPS · constraint ledger" meta="· applied both strategies">
+        <RiskLedger rules={D.RULES}/>
+      </Card>
+    </div>
+  );
+};
+
+const Mini = ({ lbl, val, tone }) => {
+  const c = tone === 'up' ? 'var(--gain-500)' : tone === 'down' ? 'var(--loss-500)' : 'var(--fg-strong)';
+  return (
+    <div style={{
+      background: 'var(--bg-elev-2)', border: '1px solid var(--border-hairline)',
+      borderRadius: 8, padding: '8px 10px',
+    }}>
+      <div className="t-eyebrow" style={{ fontSize: 10 }}>{lbl}</div>
+      <div className="mono" style={{ fontSize: 16, fontWeight: 600, color: c, marginTop: 2 }}>{val}</div>
+    </div>
+  );
+};
+
+// ──────────────────────────── ETF detail ────────────────────────────
+const EtfDetailScreen = ({ etf, onBack }) => {
+  const D = window.ETFN_DATA;
+  const factors = [
+    { name: 'Level',              contribution:  0.0021 },
+    { name: 'AUM_log',            contribution:  0.0009 },
+    { name: 'usd_krw',            contribution: -0.0004 },
+    { name: 'vix_close',          contribution: -0.0008 },
+    { name: 'domestic sentiment', contribution:  0.0014 },
+    { name: 'global sentiment',   contribution:  0.0006 },
+  ];
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <button className="etfn-btn etfn-btn--ghost" onClick={onBack}>
+          <Icon name="chevL" size={14}/><span>Back</span>
+        </button>
+        <SectorGlyph sec={etf.sec} size={32}/>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+            <span className="mono" style={{ fontSize: 13, color: 'var(--fg-strong)' }}>{etf.tk}</span>
+            <IssuerBadge issuer={etf.iss}/>
+          </div>
+          <span className="kr" style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-strong)' }}>{etf.name}</span>
+        </div>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span className="t-eyebrow">5d q50</span>
+          <span className="t-num-display" style={{ color: etf.q50 >= 0 ? 'var(--gain-500)' : 'var(--loss-500)' }}>
+            {fmtPct(etf.q50)}
+          </span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
+            <span className="mono" style={{ fontSize: 11, color: 'var(--fg-muted)' }}>q90 {fmtPct(etf.q90)}</span>
+            <span className="mono" style={{ fontSize: 11, color: 'var(--fg-muted)' }}>q10 {fmtPct(etf.q10)}</span>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, alignItems: 'start' }}>
+        <Card title="Forecast band" meta="· t−18d → t+5d"
+              action={<div className="etfn-seg etfn-seg--sm">
+                <button className="is-active">5d</button><button>1M</button><button>3M</button>
+              </div>}>
+          <QuantileFan etf={etf} width={700} height={240}/>
+        </Card>
+        <Card title="Signal" meta="· TFT v0.7">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <KV k="Sharpe (downside)" v={etf.sharpe.toFixed(2)}/>
+            <KV k="Downside" v={fmtPct(etf.downside, { signed: false })}/>
+            <KV k="Sector" v={etf.sec}/>
+            <KV k="Sub-asset" v={etf.sub} kr/>
+            <KV k="Class" v={etf.cls} kr/>
+            <div style={{ height: 1, background: 'var(--border-hairline)', margin: '4px 0' }}/>
+            <KV k="In conservative" v={
+              D.CONSERVATIVE.find(h => h.tk === etf.tk)
+                ? `${(D.CONSERVATIVE.find(h => h.tk === etf.tk).w * 100).toFixed(1)}%`
+                : '—'
+            }/>
+            <KV k="In aggressive" v={
+              D.AGGRESSIVE.find(h => h.tk === etf.tk)
+                ? `${(D.AGGRESSIVE.find(h => h.tk === etf.tk).w * 100).toFixed(1)}%`
+                : '—'
+            }/>
+          </div>
+        </Card>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <Card title="Factor decomposition" meta="· HNAM-style additive">
+          <FactorDecomp factors={factors}/>
+          <div style={{ fontSize: 11, color: 'var(--fg-subtle)', marginTop: 10, fontFamily: 'var(--font-mono)' }}>
+            E[5d] = Level + Σ effects · uncertainty from attention spread
+          </div>
+        </Card>
+        <Card title="News sentiment" meta="· last 60d">
+          <SentimentChart data={D.SENTIMENT}/>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+const KV = ({ k, v, kr }) => (
+  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontSize: 12 }}>
+    <span style={{ color: 'var(--fg-muted)' }}>{k}</span>
+    <span className={kr ? 'kr' : 'mono'} style={{ color: 'var(--fg-default)' }}>{v}</span>
+  </div>
+);
+
+// ──────────────────────────── Backtest ────────────────────────────
+const BacktestScreen = () => {
+  const D = window.ETFN_DATA;
+  const A = D.ACTUAL_WEEK;
+  const [btRange, setBtRange] = React.useState('YTD');
+  const btData = filterBacktest(D.BACKTEST, btRange);
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* 지난주 실제값 배너 */}
+      <div style={{
+        background: 'var(--bg-elev-2)', border: '1px solid var(--border-default)',
+        borderRadius: 10, padding: '12px 18px',
+        display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap',
+      }}>
+        <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em',
+                       textTransform: 'uppercase', color: 'var(--fg-subtle)',
+                       fontFamily: 'var(--font-mono)' }}>
+          {A.date} 주 · 실제 실현 수익률
+        </span>
+        {[
+          { label: 'Conservative', val: A.conservative },
+          { label: 'Aggressive',   val: A.aggressive },
+          { label: 'Equal Weight', val: A.equal_weight },
+          { label: 'Regime',       val: A.regime },
+        ].map(r => (
+          <div key={r.label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 12, color: 'var(--fg-muted)' }}>{r.label}</span>
+            <NumChange value={r.val} size={13}/>
+          </div>
+        ))}
+        <span style={{ fontSize: 11, color: 'var(--fg-subtle)', fontFamily: 'var(--font-mono)', marginLeft: 'auto' }}>
+          target_5d 가중평균 · DB GAPS 적용
+        </span>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
+        <StatCard label="Conservative" value="+23.21%" valueTone="up" footer="Sharpe 2.34 · MDD −7.6%"/>
+        <StatCard label="Aggressive"   value="+34.31%" valueTone="up" footer="Sharpe 1.91 · MDD −15.0%"/>
+        <StatCard label="Regime"       value="+31.67%" valueTone="up" footer="Sharpe 2.58 · MDD −7.6%"/>
+        <StatCard label="Equal Weight" value="+26.39%" valueTone="up" footer="Sharpe 2.37 · MDD −10.3%"/>
+        <StatCard label="기간"         value="52주"    footer="2025-01-02 ~ 2025-12-22"/>
+      </div>
+
+      <Card title="Equity curve"
+            meta="· conservative · aggressive · equal_weight · regime"
+            action={<div className="etfn-seg etfn-seg--sm">
+              {['1M','3M','YTD','1Y','All'].map(r => (
+                <button key={r} className={btRange === r ? 'is-active' : ''} onClick={() => setBtRange(r)}>{r}</button>
+              ))}
+            </div>}>
+        <BacktestChart data={btData} width={1000} height={280}/>
+      </Card>
+    </div>
+  );
+};
+
+// ──────────────────────────── Sentiment ────────────────────────────
+const SentimentScreen = () => {
+  const D = window.ETFN_DATA;
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+        <StatCard label="Domestic 감성 · 5d avg" value="+0.12"
+          valueTone="up" footer="source: 매일경제 · MK news crawler"/>
+        <StatCard label="Global 감성 · 5d avg" value="+0.04"
+          footer="source: NYT business desk"/>
+        <StatCard label="Stoploss threshold" value="−0.50" valueTone="down"
+          footer="below this → regime → conservative"/>
+      </div>
+      <Card title="Sentiment timeline" meta="· domestic vs global · 60d">
+        <SentimentChart data={D.SENTIMENT} width={1000} height={200}/>
+      </Card>
+    </div>
+  );
+};
+
+// ──────────────────────────── ETF list ────────────────────────────
+const EtfListScreen = ({ onPick }) => {
+  const D = window.ETFN_DATA;
+  return (
+    <Card title="All signals" meta={`· ${D.RANKED.length} ETFs · ranked by 5d Sharpe`}>
+      <HoldingsTable holdings={D.RANKED.map(r => ({ ...r, w: 0 }))} onPick={onPick}/>
+    </Card>
+  );
+};
+
+Object.assign(window, { DashboardScreen, PortfolioScreen, EtfDetailScreen, BacktestScreen, SentimentScreen, EtfListScreen });
+</script>
+  <script type="text/babel">// App — wires Sidebar, Topbar, Regime bar + active screen + global state
+
+const { useState } = React;
+
+function App() {
+  const [route, setRoute] = useState('dashboard');
+  const [strategy, setStrategy] = useState('auto');
+  const [selected, setSelected] = useState(null);
+  const [pulseNumbers, setPulseNumbers] = useState(0);
+
+  const effectiveStrategy = strategy === 'auto'
+    ? window.ETFN_DATA.REGIME.mode
+    : strategy;
+
+  const regime = strategy === 'auto'
+    ? window.ETFN_DATA.REGIME
+    : { ...window.ETFN_DATA.REGIME, mode: strategy, reason: 'manual override' };
+
+  const handlePick = (etf) => { setSelected(etf); setRoute('etf'); };
+  const handleNav = (id) => { setRoute(id); setSelected(null); };
+  const handleRebalance = () => { setPulseNumbers(p => p + 1); };
+  const handleStrategy = (s) => { setStrategy(s); };
+
+  let screen;
+  if (route === 'dashboard')      screen = <DashboardScreen strategy={effectiveStrategy} onPick={handlePick} onStrategy={handleStrategy}/>;
+  else if (route === 'portfolio') screen = <PortfolioScreen onPick={handlePick}/>;
+  else if (route === 'etfs')      screen = <EtfListScreen onPick={handlePick}/>;
+  else if (route === 'etf' && selected) screen = <EtfDetailScreen etf={selected} onBack={() => setRoute('dashboard')}/>;
+  else if (route === 'backtest')  screen = <BacktestScreen/>;
+  else if (route === 'sentiment') screen = <SentimentScreen/>;
+  else                            screen = <DashboardScreen strategy={effectiveStrategy} onPick={handlePick} onStrategy={handleStrategy}/>;
+
+  return (
+    <div className="etfn-shell">
+      <Sidebar active={route === 'etf' ? 'etfs' : route} onNav={handleNav}/>
+      <main className="etfn-main">
+        <RegimeBar regime={regime}/>
+        <Topbar strategy={strategy} onStrategy={handleStrategy} onRebalance={handleRebalance}/>
+        <div key={pulseNumbers} className="etfn-content">
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 16 }}>
+            <h1 style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-0.01em', margin: 0, color: 'var(--fg-strong)' }}>
+              {route === 'dashboard' ? "Today's portfolio"
+                : route === 'portfolio' ? 'Portfolios · compare'
+                : route === 'etf' ? 'ETF detail'
+                : route === 'etfs' ? 'ETF signals'
+                : route === 'backtest' ? 'Backtest'
+                : route === 'sentiment' ? 'News sentiment'
+                : 'Dashboard'}
+            </h1>
+            <span className="mono" style={{ fontSize: 11, color: 'var(--fg-subtle)' }}>
+              TFT v0.7 · features <code style={{ background:'transparent', border:0, padding:0 }}>price_macro_sentiment</code> · updated 09:31 KST
+            </span>
+          </div>
+          {screen}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
