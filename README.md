@@ -247,6 +247,23 @@ python src_tft_port_regime/backtest_regime.py \
 - Attention은 최근 10거래일에 집중 (단기 모멘텀 구조 학습)
 
 ---
+##새 챕터 "실전 확장 — 188개 ETF 주간 자동화 파이프라인"
+
+1. 왜 확장했나 
+
+실제 대회(2026.06~08까지 투자대회를 위해) 29개 ETF·고정 백테스트에서, 실제로 매주 운용 가능한 시스템으로 이어가기 위해 확장했다.
+
+2. 데이터 확장 (Before/After)
+	대회	실전 확장
+ETF 수	29개	188개 (DB GAPS 전체 리스트, pykrx 자동 수집)
+매크로	usd_krw, vix_close	+ us_10y, kr_10y, rate_spread(한미 금리차)
+섹터	8개 동일 유지	8개 동일 유지
+실행 방식	노트북 수동	run_weekly.py CLI 자동화
+3. 자동화 아키텍처
+GAPS_Pipeline/ 폴더 구조 다이어그램 (collectors/processors/src_tft/dashboard)
+8단계 파이프라인 흐름도 (가격·거시 → 뉴스 → 감성 → 데이터셋 → 전처리 → 학습 → 예측 → 포트폴리오)
+기존 "프로젝트 구조" 챕터의 Financial_project/ 구조와 이게 어떻게 이어지는지(= src_tft_port_regime이 src_tft/로 이식됨) 명시
+
 
 ## 참고
 
