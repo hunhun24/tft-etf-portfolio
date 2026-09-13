@@ -1,0 +1,8 @@
+ticker,name,sector,asset_class,sub_asset,sector_type,signal_return,signal_sharpe,weight
+A305540,TIGER 2차전지테마,tech_future,위험자산,국내주식_섹터,growth,0.09289327,3.352197,0.15
+A372330,KODEX 차이나항셍테크,emerging_asia,위험자산,해외주식_지수,growth,0.061587103,2.3960955,0.2
+A371160,TIGER 차이나항셍테크,emerging_asia,위험자산,해외주식_지수,growth,0.05665092,2.1543334,0.09999999999999998
+A144600,KODEX 은선물(H),real_assets,위험자산,FX 및 원자재,alternative,0.04312069,1.7303153,0.2
+A487230,KODEX 미국AI전력핵심인프라,tech_future,위험자산,해외주식_섹터,growth,0.02432878,0.6264139,0.050000000000000044
+A451530,TIGER 국고채30년스트립액티브,sovereign_debt,안전자산,국내채권_종합,defensive,0.00997419,0.8240983,0.2
+A439870,KODEX 국고채30년액티브,sovereign_debt,안전자산,국내채권_종합,defensive,0.010524933,1.1684974,0.09999999999999998

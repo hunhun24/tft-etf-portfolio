@@ -1,0 +1,8 @@
+ticker,name,sector,asset_class,sub_asset,sector_type,signal_return,signal_sharpe,weight
+A487240,KODEX AI전력핵심설비,tech_future,위험자산,국내주식_섹터,growth,0.0503588,2.1157193,0.15
+A195970,PLUS 선진국MSCI(합성 H),global_macro,위험자산,해외주식_지수,growth,0.024835702,1.9490134,0.2
+A352560,KODEX 미국부동산리츠(H),defensive,위험자산,해외주식_섹터,alternative,0.02359373,1.4311012,0.1
+A229200,KODEX 코스닥150,domestic_core,위험자산,국내주식_지수,growth,0.016819583,1.0732157,0.2
+A144600,KODEX 은선물(H),real_assets,위험자산,FX 및 원자재,alternative,0.0068130363,0.22036164,0.050000000000000044
+A439870,KODEX 국고채30년액티브,sovereign_debt,안전자산,국내채권_종합,defensive,0.0062683783,0.52141875,0.2
+A430500,KIWOOM 물가채KIS,rate_cash,안전자산,금리연계형/초단기채권,defensive,0.0057349843,1.4793465,0.09999999999999987

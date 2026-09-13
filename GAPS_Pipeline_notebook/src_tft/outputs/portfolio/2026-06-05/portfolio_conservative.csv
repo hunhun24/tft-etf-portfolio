@@ -1,0 +1,11 @@
+ticker,name,sector,asset_class,sub_asset,sector_type,signal_return,signal_sharpe,weight
+A102780,KODEX 삼성그룹,defensive,위험자산,국내주식_섹터,alternative,0.039869573,7.103962,0.03490980570354642
+A139260,TIGER 200 IT,tech_future,위험자산,국내주식_섹터,growth,0.05563196,3.502898,0.03093271350740365
+A363580,KODEX 200IT TR,tech_future,위험자산,국내주식_섹터,growth,0.060091265,3.3999743,0.028821042783457547
+A305540,TIGER 2차전지테마,tech_future,위험자산,국내주식_섹터,growth,0.09289326,3.3521965,0.028148723946170472
+A305720,KODEX 2차전지산업,tech_future,위험자산,국내주식_섹터,growth,0.085798904,3.3056138,0.027187725166065577
+A278540,KODEX MSCI Korea TR,domestic_core,위험자산,국내주식_지수,growth,0.019037474,3.2556202,0.12783382750265138
+A310080,RISE 중국MSCI China(H),emerging_asia,위험자산,해외주식_지수,growth,0.060470138,3.1730785,0.12216613500964689
+A488770,KODEX 머니마켓액티브,rate_cash,안전자산,금리연계형/초단기채권,defensive,0.00092783803,2.1502519,0.20000000879368604
+A455890,RISE 머니마켓액티브,rate_cash,안전자산,금리연계형/초단기채권,defensive,0.00080448727,2.117924,0.20000000879368604
+A182490,TIGER 단기선진하이일드(합성 H),sovereign_debt,안전자산,해외채권_회사채,defensive,0.0071109612,1.7698765,0.20000000879368604

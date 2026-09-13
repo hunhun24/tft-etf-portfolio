@@ -1,0 +1,16 @@
+pykrx
+yfinance
+requests
+selenium
+webdriver-manager
+pandas
+numpy
+scikit-learn
+torch
+pytorch-forecasting
+pytorch-lightning
+transformers
+sentencepiece
+streamlit
+plotly
+openpyxl

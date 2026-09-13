@@ -1,0 +1,26 @@
+ticker,name,sector,sub_asset,w_conservative,signal_return,w_aggressive
+A439870,KODEX 국고채30년액티브,sovereign_kr,0,0.0,0.0,0.2
+229200,KODEX 코스닥150,domestic_core,0,0.0,0.0,0.2
+A261220,KODEX WTI원유선물(H),real_assets,0,0.0,0.0,0.2
+A305720,KODEX 2차전지산업,SecondaryBattery,0,0.0,0.0,0.15
+A381180,TIGER 미국필라델피아반도체나스닥,Semiconductor,0,0.0,0.0,0.1
+A329750,TIGER 미국달러단기채권액티브,sovereign_us,0,0.0,0.0,0.09999999999999987
+133690,TIGER 미국나스닥100,global_macro,해외주식_지수,0.08709404163770508,0.008205167,0.050000000000000044
+A144600,KODEX 은선물(H),real_assets,0,0.0,0.0,0.0
+A411060,ACE KRX금현물,real_assets,0,0.0,0.0,0.0
+A381170,TIGER 미국테크TOP10 INDXX,BigTech,해외주식_섹터,0.05035586360980495,0.009396425,0.0
+A261240,KODEX 미국달러선물,real_assets,0,0.0,0.0,0.0
+A192090,TIGER 차이나CSI300,ChinaEquity,0,0.0,0.0,0.0
+A157450,TIGER 단기통안채,sovereign_kr,국내채권_종합,0.16334432104865662,0.0004268214,0.0
+A091160,KODEX 반도체,Semiconductor,국내주식_섹터,0.07429081223355176,0.008917405,0.0
+161510,PLUS 고배당주,defensive,0,0.0,0.0,0.0
+69500,KODEX 200,domestic_core,국내주식_지수,0.08427941297420442,0.0057077277,0.0
+459580,KODEX CD금리액티브(합성),rate_cash,금리연계형_초단기채권,0.16334432104865662,0.00075944583,0.0
+423160,KODEX KOFR금리액티브(합성),rate_cash,금리연계형_초단기채권,0.16334432104865662,0.00069735653,0.0
+402970,ACE 미국배당다우존스,defensive,0,0.0,0.0,0.0
+360750,TIGER 미국S&P500,global_macro,0,0.0,0.0,0.0
+251350,KODEX 선진국MSCI World,global_macro,0,0.0,0.0,0.0
+241180,TIGER 일본니케이225,global_macro,0,0.0,0.0,0.0
+182480,TIGER 미국MSCI리츠(합성H),defensive,해외주식_섹터,0.04964414275325926,0.0060898527,0.0
+174350,TIGER 로우볼,defensive,국내주식_섹터,0.07570919731104456,0.003928802,0.0
+A453870,TIGER 인도니프티50,IndiaEquity,해외주식_지수,0.08859356633446024,0.0057738572,0.0
